@@ -1,0 +1,6 @@
+{
+  "name": "Folklórne Dobrodružstvo: Záchrana Dievčat",
+  "description": "2D akčná hra v slovenskom folklórnom prostredí, kde hráči ovládajú Jakuba s valaškou, Šimiho s heligónkou a Filipa so zbojníckym dupákom s cieľom získať 3 festivalové kľúče a zachrániť dievčatá zo súboru.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

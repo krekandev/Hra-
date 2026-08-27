@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .font-pixel {
+    font-family: 'Press Start 2P', monospace;
+  }
+  .font-fantasy {
+    font-family: 'Cinzel', serif;
+  }
+  .pixelated {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+  }
+}
+
+:root {
+  --bg-game: #0c100e;
+  --panel-bg: #1a1a1a;
+  --border-bronze: #4a3728;
+  --accent-gold: #b8860b;
+  --text-parchment: #e0d9c1;
+}
+
+/* Custom scrollbars and styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0c100e;
+}
+::-webkit-scrollbar-thumb {
+  background: #4a3728;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8860b;
+}
+
+
