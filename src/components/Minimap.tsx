@@ -17,6 +17,7 @@ export const Minimap: React.FC<MinimapProps> = ({
   waystones,
   cameraX,
   cameraY,
+  currentZone,
 }) => {
   const mapWidth = 90;
   const mapHeight = 65;
@@ -111,19 +112,77 @@ export const Minimap: React.FC<MinimapProps> = ({
             🏠
           </div>
 
-          {/* Enemies Dots (Red) */}
-          {enemies.map((e) => (
+          {/* Undiscovered Zone Fog of War Overlays */}
+          {/* Terchová Fog (Unlocked at Chapter 2: currentZone >= 1) */}
+          {currentZone < 1 && (
             <div
-              key={e.id}
-              className={`absolute rounded-full pointer-events-none ${
-                e.isBoss ? 'bg-red-500 w-2 h-2 shadow-[0_0_4px_red]' : 'bg-rose-400 w-1 h-1'
-              }`}
+              className="absolute bg-slate-950/95 backdrop-blur-[1px] flex items-center justify-center border-l border-amber-900/60"
               style={{
-                left: `${e.x * scaleX - (e.isBoss ? 4 : 2)}px`,
-                top: `${e.y * scaleY - (e.isBoss ? 4 : 2)}px`,
+                left: `${1000 * scaleX}px`,
+                top: `${1040 * scaleY}px`,
+                width: `${(MAP_WIDTH - 1000) * scaleX}px`,
+                height: `${(MAP_HEIGHT - 1040) * scaleY}px`,
               }}
-            />
-          ))}
+              title="Terchová (Zamknutá oblasť)"
+            >
+              <span className="text-[6px] text-amber-500/70">🔒</span>
+            </div>
+          )}
+
+          {/* Myjava Fog (Unlocked at Chapter 3: currentZone >= 2) */}
+          {currentZone < 2 && (
+            <div
+              className="absolute bg-slate-950/95 backdrop-blur-[1px] flex items-center justify-center border-l border-amber-900/60"
+              style={{
+                left: `${1000 * scaleX}px`,
+                top: `${280 * scaleY}px`,
+                width: `${(MAP_WIDTH - 1000) * scaleX}px`,
+                height: `${(1040 - 280) * scaleY}px`,
+              }}
+              title="Myjava (Zamknutá oblasť)"
+            >
+              <span className="text-[6px] text-amber-500/70">🔒</span>
+            </div>
+          )}
+
+          {/* Severný Hrad Fog (Unlocked at Chapter 4: currentZone >= 3) */}
+          {currentZone < 3 && (
+            <div
+              className="absolute bg-slate-950/95 backdrop-blur-[1px] flex items-center justify-center border-b border-amber-900/60"
+              style={{
+                left: 0,
+                top: 0,
+                width: `${MAP_WIDTH * scaleX}px`,
+                height: `${280 * scaleY}px`,
+              }}
+              title="Severný Hrad (Zamknutá oblasť)"
+            >
+              <span className="text-[6px] text-amber-500/70">🔒</span>
+            </div>
+          )}
+
+          {/* Enemies Dots (Red) - Only visible in discovered territory */}
+          {enemies
+            .filter((e) => {
+              if (e.y < 280) return currentZone >= 3;
+              if (e.x >= 1000) {
+                if (e.y < 1040) return currentZone >= 2;
+                return currentZone >= 1;
+              }
+              return true;
+            })
+            .map((e) => (
+              <div
+                key={e.id}
+                className={`absolute rounded-full pointer-events-none ${
+                  e.isBoss ? 'bg-red-500 w-2 h-2 shadow-[0_0_4px_red]' : 'bg-rose-400 w-1 h-1'
+                }`}
+                style={{
+                  left: `${e.x * scaleX - (e.isBoss ? 4 : 2)}px`,
+                  top: `${e.y * scaleY - (e.isBoss ? 4 : 2)}px`,
+                }}
+              />
+            ))}
 
           {/* Heroes Indicator Dot (Yellow/Blue with pulse) */}
           {jakub && (

@@ -1,14 +1,15 @@
-import { Hero, Enemy, EnemyType, Projectile, Particle, SlashEffect, SlamEffect, FloatingText, LootOrb, HeroId, DialogueLine, SkillCooldown, RelicItem, Waystone } from '../types';
+import { Hero, Enemy, EnemyType, Projectile, Particle, SlashEffect, SlamEffect, FloatingText, LootOrb, HeroId, DialogueLine, SkillCooldown, RelicItem, Waystone, FestivalChallenge } from '../types';
 import { GameWorld, MAP_WIDTH, MAP_HEIGHT } from './map';
 import { PixelRenderer } from './sprites';
 import { sound } from './sound';
-import { STORY_CHAPTERS, VICTORY_DIALOGUE, AVAILABLE_RELICS } from './story';
+import { STORY_CHAPTERS, VICTORY_DIALOGUE, AVAILABLE_RELICS, FESTIVAL_CHALLENGES } from './story';
 
 export interface GameCallbacks {
   onDialogueStart: (lines: DialogueLine[], onComplete?: () => void) => void;
   onChapterUpdate: (chapter: any, currentKills: number) => void;
   onHeroStatsUpdate: (heroes: Hero[], cooldowns: SkillCooldown) => void;
   onRelicChoice: (relics: RelicItem[], onSelect: (relic: RelicItem) => void) => void;
+  onFestivalChallenge: (challenge: FestivalChallenge, onShot: (shot: number) => void, onComplete: () => void) => void;
   onGameOver: (score: number) => void;
   onVictory: (score: number) => void;
 }
@@ -74,6 +75,10 @@ export class GameEngine {
 
   // Wave spawn timer
   private spawnTimer: number = 0;
+
+  // Custom audio trigger counters
+  private jakubHitCounter: number = 0;
+  private filipDamageHitCounter: number = 0;
 
   constructor(canvas: HTMLCanvasElement, callbacks: GameCallbacks) {
     this.canvas = canvas;
@@ -281,6 +286,22 @@ export class GameEngine {
 
     sound.playSlash();
     this.addCameraShake(4);
+
+    // Jakub voice line: once every 5 attacks
+    this.jakubHitCounter++;
+    if (this.jakubHitCounter % 5 === 0) {
+      sound.playCustomAudio('jakub_zasah', 1.0);
+      this.floatingTexts.push({
+        id: Math.random().toString(),
+        x: this.jakub.x,
+        y: this.jakub.y - 45,
+        text: '🗣️ Jakub: „Zásah!“',
+        color: '#60a5fa',
+        alpha: 1,
+        life: 1.4,
+        isCrit: true,
+      });
+    }
 
     let slashAngle = this.jakub.angle;
     if (this.jakub.facing === 'right') slashAngle = 0;
@@ -684,7 +705,19 @@ export class GameEngine {
   public spawnChapterBoss(bossType: EnemyType) {
     this.bossSpawned = true;
     sound.playBossRoar();
+    sound.playCustomAudio('simon_podme_na_nich', 1.0);
     this.addCameraShake(12);
+
+    this.floatingTexts.push({
+      id: Math.random().toString(),
+      x: this.simi.x,
+      y: this.simi.y - 45,
+      text: '🗣️ Šimon: „Poďme na nich!“',
+      color: '#c084fc',
+      alpha: 1,
+      life: 2.5,
+      isCrit: true,
+    });
 
     let spawnX = this.jakub.x;
     let spawnY = this.jakub.y - 180;
@@ -755,14 +788,6 @@ export class GameEngine {
     } else {
       this.handleVictory();
     }
-  }
-
-  public handleVictory() {
-    this.gameWon = true;
-    sound.playVictoryFanfare();
-    this.callbacks.onDialogueStart(VICTORY_DIALOGUE, () => {
-      this.callbacks.onVictory(this.score + 2500);
-    });
   }
 
   private offerRelicSelection() {
@@ -1287,6 +1312,25 @@ export class GameEngine {
     hero.hp = Math.max(0, hero.hp - actualDamage);
 
     sound.playHeroHurt();
+
+    // Custom audio: Filip "Dostali ma" every 10 hits on Filip
+    if (hero.id === 'filip') {
+      this.filipDamageHitCounter++;
+      if (this.filipDamageHitCounter % 10 === 0) {
+        sound.playCustomAudio('filip_dostali_ma', 1.0);
+        this.floatingTexts.push({
+          id: Math.random().toString(),
+          x: this.filip.x,
+          y: this.filip.y - 45,
+          text: '🗣️ Filip: „Dostali ma!“',
+          color: '#f59e0b',
+          alpha: 1,
+          life: 1.4,
+          isCrit: true,
+        });
+      }
+    }
+
     this.addCameraShake(3);
 
     this.floatingTexts.push({
@@ -1420,11 +1464,7 @@ export class GameEngine {
           if (w.zone === 1) {
             if (this.currentChapterIndex === 0) {
               if (!this.bossSpawned && !w.completed) {
-                w.bossSpawned = true;
-                w.activated = true;
-                currentChapter.totemActivated = true;
-                currentChapter.bossSpawned = true;
-                this.spawnChapterBoss('detva_boss');
+                this.triggerFestivalChallenge(1, w, currentChapter);
               }
             } else if (w.completed && this.totemInteractCooldown <= 0) {
               this.totemInteractCooldown = 2.5;
@@ -1444,11 +1484,7 @@ export class GameEngine {
           else if (w.zone === 2) {
             if (this.currentChapterIndex === 1) {
               if (!this.bossSpawned && !w.completed) {
-                w.bossSpawned = true;
-                w.activated = true;
-                currentChapter.totemActivated = true;
-                currentChapter.bossSpawned = true;
-                this.spawnChapterBoss('terchova_boss');
+                this.triggerFestivalChallenge(2, w, currentChapter);
               }
             } else if (this.currentChapterIndex < 1 && this.totemInteractCooldown <= 0) {
               this.totemInteractCooldown = 2.5;
@@ -1479,11 +1515,7 @@ export class GameEngine {
           else if (w.zone === 3) {
             if (this.currentChapterIndex === 2) {
               if (!this.bossSpawned && !w.completed) {
-                w.bossSpawned = true;
-                w.activated = true;
-                currentChapter.totemActivated = true;
-                currentChapter.bossSpawned = true;
-                this.spawnChapterBoss('myjava_boss');
+                this.triggerFestivalChallenge(3, w, currentChapter);
               }
             } else if (this.currentChapterIndex < 2 && this.totemInteractCooldown <= 0) {
               this.totemInteractCooldown = 2.5;
@@ -1531,6 +1563,51 @@ export class GameEngine {
         }
       }
     });
+  }
+
+  private triggerFestivalChallenge(zoneIndex: number, w: Waystone, currentChapter: any) {
+    const challenge = FESTIVAL_CHALLENGES[zoneIndex];
+    if (!challenge) {
+      w.bossSpawned = true;
+      w.activated = true;
+      currentChapter.totemActivated = true;
+      currentChapter.bossSpawned = true;
+      const bType: EnemyType = zoneIndex === 1 ? 'detva_boss' : (zoneIndex === 2 ? 'terchova_boss' : 'myjava_boss');
+      this.spawnChapterBoss(bType);
+      return;
+    }
+
+    this.isPaused = true;
+    this.callbacks.onFestivalChallenge(
+      challenge,
+      (goalIndex: number) => {
+        // Heal whole party and restore energy
+        this.heroes.forEach(h => {
+          if (h.hp > 0) {
+            h.hp = Math.min(h.maxHp, h.hp + challenge.healPerGoal);
+            h.energy = Math.min(h.maxEnergy, h.energy + challenge.energyPerGoal);
+          }
+        });
+        this.floatingTexts.push({
+          id: Math.random().toString(),
+          x: this.jakub.x,
+          y: this.jakub.y - 45,
+          text: `✨ SKÚŠKA #${goalIndex} SPLNENÁ! +${challenge.healPerGoal} HP +${challenge.energyPerGoal} ENERGIA`,
+          color: '#34d399',
+          alpha: 1,
+          life: 1.8,
+          isCrit: true,
+        });
+      },
+      () => {
+        this.isPaused = false;
+        w.bossSpawned = true;
+        w.activated = true;
+        currentChapter.totemActivated = true;
+        currentChapter.bossSpawned = true;
+        this.spawnChapterBoss(challenge.bossType);
+      }
+    );
   }
 
   private findClosestHero(x: number, y: number): Hero | null {
@@ -1626,12 +1703,14 @@ export class GameEngine {
       draw: () => PixelRenderer.drawGirlsInCastle(ctx, 1400, 140, this.animFrameCounter)
     });
 
-    // Enemies
+    // Enemies (only drawn if within discovered territory)
     this.enemies.forEach(enemy => {
-      renderEntities.push({
-        y: enemy.y,
-        draw: () => PixelRenderer.drawEnemy(ctx, enemy, this.animFrameCounter)
-      });
+      if (this.isZoneDiscovered(enemy.x, enemy.y)) {
+        renderEntities.push({
+          y: enemy.y,
+          draw: () => PixelRenderer.drawEnemy(ctx, enemy, this.animFrameCounter)
+        });
+      }
     });
 
     // Heroes
@@ -1661,7 +1740,11 @@ export class GameEngine {
     this.slashes.forEach(s => PixelRenderer.drawSlash(ctx, s));
 
     // 7. Projectiles
-    this.projectiles.forEach(p => PixelRenderer.drawProjectile(ctx, p));
+    this.projectiles.forEach(p => {
+      if (this.isZoneDiscovered(p.x, p.y)) {
+        PixelRenderer.drawProjectile(ctx, p);
+      }
+    });
 
     // 8. Particles
     this.particles.forEach(p => PixelRenderer.drawParticle(ctx, p));
@@ -1669,10 +1752,78 @@ export class GameEngine {
     // 9. Floating Combat Text
     this.floatingTexts.forEach(t => PixelRenderer.drawFloatingText(ctx, t));
 
+    // 10. Fog of War / Undiscovered Region Darkness
+    this.renderFogOfWar(ctx);
+
     ctx.restore();
 
-    // 10. Screen Vignette
+    // 11. Screen Vignette
     this.renderScreenVignette(ctx, width, height);
+  }
+
+  public isZoneDiscovered(x: number, y: number): boolean {
+    // Castle area: y < 280
+    if (y < 280) {
+      return this.keysCollected >= 3;
+    }
+    // East side of the river: x >= 990
+    if (x >= 990) {
+      // Myjava area: y < 1040
+      if (y < 1040) {
+        return this.keysCollected >= 2;
+      }
+      // Terchová area: y >= 1040
+      return this.keysCollected >= 1;
+    }
+    // West side (Detva & Chalúpka) is always discovered from start
+    return true;
+  }
+
+  private renderFogOfWar(ctx: CanvasRenderingContext2D) {
+    ctx.save();
+
+    // 1. Severný Hrad (Zone 4) - Locked if keysCollected < 3
+    if (this.keysCollected < 3) {
+      this.drawDarkFogZone(ctx, 0, 0, MAP_WIDTH, 280, '🔒 SEVERNÝ HRAD (Zamknutá oblasť)');
+    }
+
+    // 2. Myjavské Kopanice (Zone 3) - Locked if keysCollected < 2
+    if (this.keysCollected < 2) {
+      this.drawDarkFogZone(ctx, 990, 280, MAP_WIDTH - 990, 760, '🔒 FESTIVAL MYJAVA (Zamknutá oblasť)');
+    }
+
+    // 3. Terchová (Zone 2) - Locked if keysCollected < 1
+    if (this.keysCollected < 1) {
+      this.drawDarkFogZone(ctx, 990, 1040, MAP_WIDTH - 990, MAP_HEIGHT - 1040, '🔒 FESTIVAL TERCHOVÁ (Zamknutá oblasť)');
+    }
+
+    ctx.restore();
+  }
+
+  private drawDarkFogZone(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, label: string) {
+    // Deep black fog overlay completely obscuring undiscovered territory
+    ctx.fillStyle = 'rgba(3, 7, 18, 0.98)';
+    ctx.fillRect(x, y, w, h);
+
+    // Animated mystical dark mist swirls
+    const time = this.animFrameCounter * 0.015;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.6)';
+    for (let i = 0; i < 4; i++) {
+      const fx = x + ((Math.sin(time + i * 1.7) * 0.5 + 0.5) * (w - 200)) + 100;
+      const fy = y + ((Math.cos(time * 0.8 + i * 1.3) * 0.5 + 0.5) * (h - 100)) + 50;
+      ctx.beginPath();
+      ctx.arc(fx, fy, 150, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Centered ominous locked label
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.35)';
+    ctx.fillText(label, cx, cy);
   }
 
   private renderScreenVignette(ctx: CanvasRenderingContext2D, w: number, h: number) {

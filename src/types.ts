@@ -141,11 +141,12 @@ export interface LootOrb {
 }
 
 export interface DialogueLine {
-  speaker: 'Jakub' | 'Šimi' | 'Filip' | 'Samko Szabó' | 'Dievčatá zo súboru' | 'Zbojnícky Bača' | 'Rozprávač';
-  speakerHeroId?: HeroId | 'samko' | 'girls' | 'boss' | 'narrator';
+  speaker: 'Jakub' | 'Šimi' | 'Filip' | 'Samko Szabó' | 'Dievčatá zo súboru' | 'Zbojnícky Bača' | 'Rozprávač' | 'Marek' | 'Rozprávač Marek';
+  speakerHeroId?: HeroId | 'samko' | 'girls' | 'boss' | 'narrator' | 'marek';
   text: string;
   portrait?: string;
-  mood?: 'normal' | 'angry' | 'smug' | 'mysterious' | 'determined';
+  mood?: 'normal' | 'neutral' | 'happy' | 'angry' | 'determined' | 'scared' | 'mysterious' | 'smug';
+  voiceAudio?: string;
 }
 
 export interface StoryChapter {
@@ -221,3 +222,24 @@ export interface FestivalZone {
   radius: number;
   cleared: boolean;
 }
+
+export type ChallengeType = 'drinking_shots' | 'whip_timing' | 'click_mashing' | 'hat_duel';
+
+export interface FestivalChallenge {
+  zone: number;
+  type: ChallengeType;
+  festivalName: string;
+  challengeTitle: string;
+  challengeDescription: string;
+  itemIcon: string;
+  itemName: string;
+  authorName?: string;
+  portraitUrl?: string;
+  totalGoals: number;
+  clicksPerGoal?: number;
+  healPerGoal: number;
+  energyPerGoal: number;
+  bossType: EnemyType;
+  bossName: string;
+}
+

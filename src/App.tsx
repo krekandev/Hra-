@@ -1,11 +1,12 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { GameEngine } from './game/engine';
-import { Hero, SkillCooldown, DialogueLine, StoryChapter, RelicItem } from './types';
+import { Hero, SkillCooldown, DialogueLine, StoryChapter, RelicItem, FestivalChallenge } from './types';
 import { ChampionBar } from './components/ChampionBar';
 import { DialogueBox } from './components/DialogueBox';
 import { Minimap } from './components/Minimap';
 import { QuestBanner } from './components/QuestBanner';
 import { RelicModal } from './components/RelicModal';
+import { FestivalChallengeModal } from './components/FestivalChallengeModal';
 import { GameOverModal } from './components/GameOverModal';
 import { VictoryModal } from './components/VictoryModal';
 import { ControlsGuide } from './components/ControlsGuide';
@@ -37,6 +38,9 @@ export default function App() {
   const [dialogueCompleteCallback, setDialogueCompleteCallback] = useState<(() => void) | null>(null);
   const [offeredRelics, setOfferedRelics] = useState<RelicItem[] | null>(null);
   const [relicSelectCallback, setRelicSelectCallback] = useState<((relic: RelicItem) => void) | null>(null);
+  const [activeChallenge, setActiveChallenge] = useState<FestivalChallenge | null>(null);
+  const [challengeShotCallback, setChallengeShotCallback] = useState<((shot: number) => void) | null>(null);
+  const [challengeCompleteCallback, setChallengeCompleteCallback] = useState<(() => void) | null>(null);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isVictory, setIsVictory] = useState<boolean>(false);
   const [showHelp, setShowHelp] = useState<boolean>(false);
@@ -89,6 +93,11 @@ export default function App() {
         setOfferedRelics(relics);
         setRelicSelectCallback(() => onSelect);
       },
+      onFestivalChallenge: (challenge, onShot, onComplete) => {
+        setActiveChallenge(challenge);
+        setChallengeShotCallback(() => onShot);
+        setChallengeCompleteCallback(() => onComplete);
+      },
       onGameOver: (finalScore) => {
         setScore(finalScore);
         setIsGameOver(true);
@@ -128,11 +137,28 @@ export default function App() {
     }
   };
 
+  const handleChallengeShot = (shotIndex: number) => {
+    if (challengeShotCallback) {
+      challengeShotCallback(shotIndex);
+    }
+  };
+
+  const handleChallengeComplete = () => {
+    setActiveChallenge(null);
+    if (challengeCompleteCallback) {
+      challengeCompleteCallback();
+      setChallengeCompleteCallback(null);
+    }
+  };
+
   const handleRestart = () => {
     setIsGameOver(false);
     setIsVictory(false);
     setActiveDialogue(null);
     setOfferedRelics(null);
+    setActiveChallenge(null);
+    setChallengeShotCallback(null);
+    setChallengeCompleteCallback(null);
     setActiveRelics([]);
     setCurrentChapter(STORY_CHAPTERS[0]);
     setChapterKills(0);
@@ -223,6 +249,15 @@ export default function App() {
         <RelicModal
           relics={offeredRelics}
           onSelect={handleRelicSelected}
+        />
+      )}
+
+      {/* Festival Ritual / Drinking Challenge Modal */}
+      {activeChallenge && (
+        <FestivalChallengeModal
+          challenge={activeChallenge}
+          onShotConsumed={handleChallengeShot}
+          onChallengeComplete={handleChallengeComplete}
         />
       )}
 

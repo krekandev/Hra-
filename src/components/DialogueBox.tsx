@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DialogueLine } from '../types';
 import { sound } from '../game/sound';
-import { MessageSquare, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 
 interface DialogueBoxProps {
   lines: DialogueLine[];
@@ -21,13 +21,18 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
     setDisplayedText('');
     setIsTyping(true);
 
+    // Play character spoken voice line if defined
+    if (currentLine.voiceAudio) {
+      sound.playCustomAudio(currentLine.voiceAudio, 1.0);
+    }
+
     let charIndex = 0;
     const fullText = currentLine.text;
 
     const timer = setInterval(() => {
       if (charIndex < fullText.length) {
         setDisplayedText(fullText.slice(0, charIndex + 1));
-        if (charIndex % 3 === 0) {
+        if (charIndex % 3 === 0 && !currentLine.voiceAudio) {
           sound.playTypewriter();
         }
         charIndex++;
@@ -35,18 +40,20 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
         setIsTyping(false);
         clearInterval(timer);
       }
-    }, 18);
+    }, 16);
 
     return () => clearInterval(timer);
   }, [currentIndex, currentLine]);
 
   const handleAdvance = () => {
     if (isTyping && currentLine) {
-      // Skip typewriter to full text
       setDisplayedText(currentLine.text);
       setIsTyping(false);
       return;
     }
+
+    // Stop current voice audio before advancing
+    sound.stopCustomAudio();
 
     if (currentIndex < lines.length - 1) {
       setCurrentIndex(prev => prev + 1);
@@ -54,6 +61,12 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
       onComplete();
     }
   };
+
+  useEffect(() => {
+    return () => {
+      sound.stopCustomAudio();
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,57 +81,105 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
 
   if (!currentLine) return null;
 
-  // Speaker icons & colors
-  let speakerColor = '#fbbf24';
+  // Speaker icons & photo mappings
   let speakerIcon = '📜';
+  let speakerPhoto = '';
   let badgeClass = 'bg-amber-950/90 border-[#fbbf24] text-[#fbbf24]';
+  let speakerRole = 'Postava';
 
-  if (currentLine.speaker === 'Jakub') {
-    speakerColor = '#60a5fa';
+  if (currentLine.speaker === 'Marek' || currentLine.speaker === 'Rozprávač' || currentLine.speaker === 'Rozprávač Marek') {
+    speakerIcon = '🎭';
+    speakerPhoto = '/marek.jpg';
+    badgeClass = 'bg-red-950/90 border-red-500 text-red-200';
+    speakerRole = 'Rozprávač';
+  } else if (currentLine.speaker === 'Jakub') {
     speakerIcon = '🪓';
+    speakerPhoto = '/jakub.png';
     badgeClass = 'bg-blue-950/90 border-blue-500 text-blue-300';
+    speakerRole = 'Vodca družiny';
   } else if (currentLine.speaker === 'Šimi') {
-    speakerColor = '#c084fc';
     speakerIcon = '🪗';
+    speakerPhoto = '/simi.png';
     badgeClass = 'bg-purple-950/90 border-purple-500 text-purple-300';
+    speakerRole = 'Heligonkár';
   } else if (currentLine.speaker === 'Filip') {
-    speakerColor = '#f59e0b';
     speakerIcon = '💥';
+    speakerPhoto = '/filip.png';
     badgeClass = 'bg-amber-950/90 border-amber-500 text-amber-300';
-  } else if (currentLine.speaker === 'Samko Szabó') {
-    speakerColor = '#4ade80';
+    speakerRole = 'Zbojník';
+  } else if (currentLine.speaker === 'Samko Szabó' || currentLine.speaker === 'Samko') {
     speakerIcon = '👨‍🌾';
+    speakerPhoto = '/samko.jpg';
     badgeClass = 'bg-emerald-950/90 border-emerald-500 text-emerald-300';
+    speakerRole = 'Detviansky sprievodca';
+  } else if (currentLine.speaker === 'Emi Sobi') {
+    speakerIcon = '🥃';
+    speakerPhoto = '/emi_sobi.jpg';
+    badgeClass = 'bg-orange-950/90 border-orange-500 text-orange-300';
+    speakerRole = 'Hostiteľka z Detvy';
+  } else if (currentLine.speaker === 'Žofi') {
+    speakerIcon = '🪢';
+    speakerPhoto = '/zofi.jpg';
+    badgeClass = 'bg-amber-950/90 border-amber-500 text-amber-300';
+    speakerRole = 'Majster biča z Terchovej';
+  } else if (currentLine.speaker === 'Mirnyx Sova') {
+    speakerIcon = '🤠';
+    speakerPhoto = '/mirnyx_sova.jpg';
+    badgeClass = 'bg-yellow-950/90 border-yellow-500 text-yellow-300';
+    speakerRole = 'Majster širákov z Myjavy';
   } else if (currentLine.speaker === 'Dievčatá zo súboru') {
-    speakerColor = '#f43f5e';
     speakerIcon = '🌸';
     badgeClass = 'bg-rose-950/90 border-rose-500 text-rose-300';
+    speakerRole = 'Folklórny súbor';
   }
 
   return (
     <div
       id="dialogue-box-overlay"
       onClick={handleAdvance}
-      className="fixed bottom-20 sm:bottom-24 left-2 right-2 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-2xl z-40 cursor-pointer select-none"
+      className="fixed bottom-16 sm:bottom-20 left-2 right-2 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-2xl z-40 cursor-pointer select-none"
     >
-      <div className="bg-[#1c1917]/98 backdrop-blur-md border-2 border-[#78350f] p-3 sm:p-4 rounded-xl shadow-2xl text-[#fef08a] relative">
-        {/* Speaker Name Tag */}
-        <div className="flex items-center justify-between mb-1.5 border-b border-[#78350f]/80 pb-1">
-          <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded border text-[10px] sm:text-xs font-serif font-bold tracking-wider uppercase ${badgeClass}`}>
-            <span>{speakerIcon}</span>
-            <span>{currentLine.speaker}</span>
+      <div className="bg-[#1c1917]/98 backdrop-blur-md border-2 border-[#b45309] p-3.5 sm:p-4 rounded-3xl shadow-2xl text-[#fef08a] relative flex items-center gap-3.5 sm:gap-4.5">
+        {/* Large Character Portrait Photo */}
+        {speakerPhoto ? (
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.3)] shrink-0 bg-stone-900">
+            <img
+              src={speakerPhoto}
+              alt={currentLine.speaker}
+              className="w-full h-full object-cover pixelated"
+              style={{ imageRendering: 'pixelated' }}
+            />
+          </div>
+        ) : (
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 border-amber-400 bg-amber-950/90 flex items-center justify-center text-3xl shadow-lg shrink-0">
+            {speakerIcon}
+          </div>
+        )}
+
+        <div className="flex-1 min-w-0">
+          {/* Speaker Header Tag */}
+          <div className="flex items-center justify-between mb-1.5 border-b border-[#78350f]/80 pb-1">
+            <div className="flex items-center gap-1.5">
+              <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border text-xs sm:text-sm font-serif font-bold tracking-wider uppercase ${badgeClass}`}>
+                <span>{speakerIcon}</span>
+                <span>{currentLine.speaker}</span>
+              </div>
+              <span className="hidden sm:inline-block text-[10px] text-stone-400 font-serif italic">
+                ({speakerRole})
+              </span>
+            </div>
+
+            <span className="text-[9px] sm:text-[10px] font-mono text-[#a8a29e] flex items-center gap-0.5">
+              Ďalej <ChevronRight className="w-3.5 h-3.5 text-[#fbbf24] inline animate-pulse" />
+            </span>
           </div>
 
-          <span className="text-[8px] sm:text-[9px] font-mono text-[#a8a29e] flex items-center gap-0.5">
-            Klikni pre pokračovanie <ChevronRight className="w-3 h-3 text-[#fbbf24] inline animate-pulse" />
-          </span>
+          {/* Dialogue Text */}
+          <p className="text-xs sm:text-sm text-[#f5f5f4] leading-relaxed min-h-[44px] font-sans font-medium">
+            {displayedText}
+            {isTyping && <span className="inline-block w-1.5 h-3 bg-[#fbbf24] ml-0.5 animate-pulse" />}
+          </p>
         </div>
-
-        {/* Dialogue Text */}
-        <p className="text-xs sm:text-sm text-[#f5f5f4] leading-relaxed min-h-[44px] font-sans">
-          {displayedText}
-          {isTyping && <span className="inline-block w-1.5 h-3 bg-[#fbbf24] ml-0.5 animate-pulse" />}
-        </p>
       </div>
     </div>
   );

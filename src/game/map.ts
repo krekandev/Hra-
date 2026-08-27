@@ -52,27 +52,26 @@ export class GameWorld {
         }
 
         // Slovak Pathway Network
-        // 1. Horizontal Path from Start Chalúpka (480, 450) to Detva Road (480, 1450)
-        const isDetvaRoad = Math.abs(worldX - 480) < 45 && worldY >= 450 && worldY <= 1450;
-        // 2. Road East across river to Terchová (from 480, 1450 through 1400, 1450 to 2250, 1450)
-        const isTerchovaRoad = Math.abs(worldY - 1450) < 45 && worldX >= 450 && worldX <= 2250;
-        // 3. Road North to Myjava (from 1400, 1450 up to Myjava at 1500, 650)
+        // 1. Path from Start Chalúpka (480, 450) south to Detva Road & Totem (480, 1450)
+        const isDetvaRoad = Math.abs(worldX - 480) < 45 && worldY >= 450 && worldY <= 1550;
+        // 2. Road East across river to Terchová (from 480, 1450 across bridge at 1000, 1450 to 2200, 1450)
+        const isTerchovaRoad = Math.abs(worldY - 1450) < 45 && worldX >= 450 && worldX <= 2300;
+        // 3. Road North from Terchová crossroads to Myjava (from 1400, 1450 up to Myjava at 1500, 650)
         const isMyjavaRoad = Math.abs(worldX - 1400) < 45 && worldY >= 600 && worldY <= 1450;
-        // 4. Road from Myjava to Northern Castle (from 1400, 600 up to 1400, 280)
-        const isCastleRoad = Math.abs(worldX - 1400) < 50 && worldY >= 250 && worldY <= 650;
-        // 5. Crossroad west to start chalupka
-        const isStartCrossroad = Math.abs(worldY - 450) < 45 && worldX >= 250 && worldX <= 1400;
+        // 4. Road from Myjava to Northern Castle Gate (from 1400, 600 up to 1400, 260)
+        const isCastleRoad = Math.abs(worldX - 1400) < 50 && worldY >= 240 && worldY <= 650;
+        // 5. Local path around start chalúpka
+        const isStartCrossroad = Math.abs(worldY - 450) < 45 && worldX >= 250 && worldX <= 600;
 
         if (isDetvaRoad || isTerchovaRoad || isMyjavaRoad || isCastleRoad || isStartCrossroad) {
           tile = 2; // Kamenistá cesta
         }
 
-        // Horský Potok / River crossing at x = 1000
-        const isRiver = Math.abs(worldX - 1000) < 45 && worldY > 320;
-        const isBridgeSouth = isRiver && Math.abs(worldY - 1450) < 60; // Most do Terchovej
-        const isBridgeNorth = isRiver && Math.abs(worldY - 450) < 60;
+        // Horský Potok / River crossing at x = 1000 (continuous natural barrier between Detva and Eastern regions)
+        const isRiver = Math.abs(worldX - 1000) < 45 && worldY >= 280;
+        const isBridgeSouth = isRiver && Math.abs(worldY - 1450) < 50; // JEDINÝ most do Terchovej cez rieku
 
-        if (isRiver && !isBridgeSouth && !isBridgeNorth) {
+        if (isRiver && !isBridgeSouth) {
           tile = 4; // Voda / Potok
         }
 
@@ -86,14 +85,14 @@ export class GameWorld {
   }
 
   private initObstacles() {
-    // 1. Boundary Trees / Hory
-    for (let x = 0; x < MAP_WIDTH; x += 60) {
-      this.obstacles.push({ x, y: 0, width: 60, height: 40, type: 'tree' });
-      this.obstacles.push({ x, y: MAP_HEIGHT - 50, width: 60, height: 50, type: 'tree' });
+    // 1. Boundary Trees / Hory (Impassable borders of the world)
+    for (let x = 0; x < MAP_WIDTH; x += 55) {
+      this.obstacles.push({ x, y: 0, width: 55, height: 40, type: 'tree' });
+      this.obstacles.push({ x, y: MAP_HEIGHT - 50, width: 55, height: 50, type: 'tree' });
     }
-    for (let y = 0; y < MAP_HEIGHT; y += 60) {
-      this.obstacles.push({ x: 0, y, width: 40, height: 60, type: 'tree' });
-      this.obstacles.push({ x: MAP_WIDTH - 50, y, width: 50, height: 60, type: 'tree' });
+    for (let y = 0; y < MAP_HEIGHT; y += 55) {
+      this.obstacles.push({ x: 0, y, width: 40, height: 55, type: 'tree' });
+      this.obstacles.push({ x: MAP_WIDTH - 50, y, width: 50, height: 55, type: 'tree' });
     }
 
     // 2. Start Location: Stará Slovenská Chalúpka & Drevený Plot
@@ -102,30 +101,31 @@ export class GameWorld {
     this.obstacles.push({ x: 260, y: 390, width: 24, height: 60, type: 'fence' });
     this.obstacles.push({ x: 290, y: 460, width: 45, height: 40, type: 'haystack' });
 
-    // 3. Northern Castle Structure (Veľký Kamenný Hrad na severe)
-    this.obstacles.push({ x: 950, y: 80, width: 380, height: 180, type: 'castle_wall' });
-    this.obstacles.push({ x: 1470, y: 80, width: 380, height: 180, type: 'castle_wall' });
+    // 3. NORTHERN CASTLE IMPASSABLE WALL (Spans the full width of the world at y: 220-280)
+    // ONLY passage into Severný Hrad is through the locked castle gate at x: 1330 - 1470
+    for (let x = 0; x < MAP_WIDTH; x += 60) {
+      if (x >= 1300 && x <= 1460) continue; // Opening for Castle Gate
+      this.obstacles.push({ x, y: 220, width: 62, height: 75, type: 'castle_wall' });
+    }
     
-    // Castle Main Locked Gate (between wings at x: 1330 - 1470, y: 220)
-    // Requires all 3 keys to unlock (lockedByChapter: 3)
+    // Castle Main Locked Gate (Requires all 3 keys to unlock: lockedByChapter: 3)
     this.obstacles.push({
       id: 'castle_gate',
       x: 1330,
       y: 220,
       width: 140,
-      height: 60,
+      height: 75,
       type: 'castle_gate',
       lockedByChapter: 3,
       unlocked: false,
       label: 'Hradná Brána (Vyžaduje 3 Kľúče)'
     });
 
-    // 4. Potok / River Obstacles (blocks movement where there is no bridge)
-    for (let y = 330; y < MAP_HEIGHT - 50; y += 40) {
-      const isBridge1 = Math.abs(y - 450) < 60;
-      const isBridge2 = Math.abs(y - 1450) < 60;
-      if (!isBridge1 && !isBridge2) {
-        this.obstacles.push({ x: 975, y, width: 50, height: 40, type: 'water' });
+    // 4. POTOK / RIVER OBSTACLES (Blocks crossing from Detva to Terchová / East from y=280 to MAP_HEIGHT)
+    for (let y = 280; y < MAP_HEIGHT - 50; y += 36) {
+      const isBridge = Math.abs(y - 1450) < 45;
+      if (!isBridge) {
+        this.obstacles.push({ x: 975, y, width: 55, height: 38, type: 'water' });
       }
     }
 
@@ -135,19 +135,21 @@ export class GameWorld {
     this.obstacles.push({ x: 550, y: 1320, width: 30, height: 30, type: 'fire' });
     this.obstacles.push({ x: 320, y: 1480, width: 45, height: 40, type: 'haystack' });
 
-    // BARRICADE 1: Cesta do Terchovej (Most na rieke / prechod na východ do Terchovej)
-    // Blocks access until Detva boss is defeated & key 1 obtained (lockedByChapter: 1)
+    // BARRICADE 1: Cesta do Terchovej (Jediný most na rieke cez prechod na východ do Terchovej)
+    // Flanked by dense fences on the bridge edges so players cannot slip around
+    this.obstacles.push({ x: 975, y: 1395, width: 55, height: 25, type: 'fence' });
     this.obstacles.push({
       id: 'barricade_terchova',
-      x: 980,
+      x: 975,
       y: 1420,
-      width: 45,
-      height: 65,
+      width: 55,
+      height: 60,
       type: 'barricade',
       lockedByChapter: 1,
       unlocked: false,
       label: 'Zbojnícka Barikáda do Terchovej (Vyžaduje Kľúč z Detvy)'
     });
+    this.obstacles.push({ x: 975, y: 1480, width: 55, height: 25, type: 'fence' });
 
     // 6. Zone 2: Terchová Festival Arena (South-East)
     this.obstacles.push({ x: 2150, y: 1400, width: 90, height: 65, type: 'festival_stage' });
@@ -156,13 +158,19 @@ export class GameWorld {
     this.obstacles.push({ x: 2000, y: 1520, width: 30, height: 30, type: 'fire' });
     this.obstacles.push({ x: 2320, y: 1520, width: 30, height: 30, type: 'fire' });
 
-    // BARRICADE 2: Cesta do Myjavy (Cesta na sever k Myjavským Kopaniciam)
-    // Blocks access until Terchová boss is defeated & key 2 obtained (lockedByChapter: 2)
+    // BARRICADE 2 FENCE LINE: Full continuous fence line between Terchová and Myjava at y = 1040
+    // Spans all the way from the River (x = 1000) to the East Edge (x = 2800)
+    for (let x = 1000; x < MAP_WIDTH; x += 50) {
+      if (x >= 1350 && x <= 1425) continue; // Opening for the road barricade
+      this.obstacles.push({ x, y: 1040, width: 52, height: 36, type: 'fence' });
+    }
+
+    // BARRICADE 2: Cesta do Myjavy (Guards the only opening at the road x: 1365..1435)
     this.obstacles.push({
       id: 'barricade_myjava',
-      x: 1375,
-      y: 1050,
-      width: 60,
+      x: 1365,
+      y: 1035,
+      width: 70,
       height: 45,
       type: 'barricade',
       lockedByChapter: 2,

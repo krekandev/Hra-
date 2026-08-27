@@ -12,6 +12,15 @@ class SoundEngine {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
+        // Preload custom audio buffers
+        [
+          'jakub_intro', 'simi_intro', 'filip_intro',
+          'jakub_ch2', 'simi_ch2', 'filip_ch2',
+          'jakub_ch3', 'simi_ch3', 'filip_ch3',
+          'filip_victory', 'simi_victory', 'jakub_victory',
+          'jakub_zasah', 'filip_dostali_ma', 'simon_podme_na_nich',
+          'jakub_sme_tu'
+        ].forEach(name => this.loadAudioBuffer(`/sounds/${name}.wav`));
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
@@ -348,6 +357,172 @@ class SoundEngine {
     osc.start(now);
     osc.stop(now + 0.14);
   }
+
+  // Festival Drinking Click (Glass clink)
+  public playDrinkClick() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1200 + Math.random() * 300, now);
+    osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.05);
+  }
+
+  // Festival Shot Exnutie (Gulp + Chime)
+  public playShotEx() {
+    if (this.isMuted) return;
+    this.initCtx();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(640, now + 0.1);
+    osc.frequency.exponentialRampToValueAtTime(520, now + 0.22);
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.25);
+  }
+
+  private audioBufferCache: Map<string, AudioBuffer> = new Map();
+  private audioLoadingMap: Map<string, Promise<AudioBuffer | null>> = new Map();
+
+  // Preload an audio file into Web Audio API buffer
+  public async loadAudioBuffer(src: string): Promise<AudioBuffer | null> {
+    if (this.audioBufferCache.has(src)) {
+      return this.audioBufferCache.get(src)!;
+    }
+    if (this.audioLoadingMap.has(src)) {
+      return this.audioLoadingMap.get(src)!;
+    }
+
+    this.initCtx();
+    if (!this.ctx) return null;
+
+    const promise = (async () => {
+      try {
+        const response = await fetch(src);
+        if (!response.ok) return null;
+        const arrayBuffer = await response.arrayBuffer();
+        if (!this.ctx) return null;
+        const decoded = await this.ctx.decodeAudioData(arrayBuffer);
+        this.audioBufferCache.set(src, decoded);
+        return decoded;
+      } catch (err) {
+        return null;
+      }
+    })();
+
+    this.audioLoadingMap.set(src, promise);
+    return promise;
+  }
+
+  private currentCustomSource: AudioBufferSourceNode | null = null;
+  private currentHTMLAudio: HTMLAudioElement | null = null;
+
+  // Stop currently playing voice / custom audio
+  public stopCustomAudio() {
+    if (this.currentCustomSource) {
+      try {
+        this.currentCustomSource.stop();
+      } catch {}
+      this.currentCustomSource = null;
+    }
+    if (this.currentHTMLAudio) {
+      try {
+        this.currentHTMLAudio.pause();
+        this.currentHTMLAudio.currentTime = 0;
+      } catch {}
+      this.currentHTMLAudio = null;
+    }
+  }
+
+  // Play custom audio file with automatic fallback and Web Audio decoding
+  public async playCustomAudio(filename: string, volume: number = 0.9) {
+    if (this.isMuted) return;
+    this.initCtx();
+    this.stopCustomAudio();
+
+    // Clean base name
+    const baseName = filename.replace(/\.(aac|m4a|mp3|wav|ogg)$/i, '');
+    const candidatePaths = [
+      `/sounds/${baseName}.wav`,
+      `/sounds/${baseName}.mp3`,
+      `/sounds/${baseName}.m4a`,
+      `/sounds/${baseName}.aac`,
+      filename.startsWith('/') ? filename : `/sounds/${filename}`
+    ];
+
+    // 1. Try playing via Web Audio Buffer (Zero latency, best quality)
+    if (this.ctx) {
+      for (const path of candidatePaths) {
+        try {
+          const buffer = await this.loadAudioBuffer(path);
+          if (buffer && this.ctx && this.ctx.state !== 'suspended') {
+            const source = this.ctx.createBufferSource();
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime(Math.max(0, Math.min(1, volume)), this.ctx.currentTime);
+            source.buffer = buffer;
+            source.connect(gain);
+            gain.connect(this.ctx.destination);
+            this.currentCustomSource = source;
+            source.onended = () => {
+              if (this.currentCustomSource === source) {
+                this.currentCustomSource = null;
+              }
+            };
+            source.start(0);
+            return;
+          }
+        } catch {
+          // Continue to next path or HTML5 audio fallback
+        }
+      }
+    }
+
+    // 2. Fallback to HTMLAudioElement
+    for (const path of candidatePaths) {
+      try {
+        const audio = new Audio(path);
+        audio.volume = Math.max(0, Math.min(1, volume));
+        this.currentHTMLAudio = audio;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Browser blocked autoplay or failed
+          });
+          return;
+        }
+      } catch {
+        // Try next
+      }
+    }
+  }
 }
 
 export const sound = new SoundEngine();
+
+

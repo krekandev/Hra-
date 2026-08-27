@@ -44,9 +44,9 @@ export const ChampionBar: React.FC<ChampionBarProps> = ({
       <div id="hud-main-deck" className="bg-[#1c1917]/95 backdrop-blur-md border-2 border-[#78350f] p-1.5 sm:p-2 shadow-2xl shadow-black flex items-center gap-2 sm:gap-3 pointer-events-auto text-[#fef08a] max-w-full overflow-x-auto rounded-lg">
         {/* Jakub */}
         {jakub && (
-          <div id="hero-card-jakub" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f] p-1 sm:p-1.5 min-w-[125px] sm:min-w-[155px] shadow-md rounded">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-blue-950 border border-[#fbbf24] flex items-center justify-center text-xs font-bold text-[#fbbf24] shadow-inner font-serif rounded">
-              J
+          <div id="hero-card-jakub" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f] p-1 sm:p-1.5 min-w-[125px] sm:min-w-[155px] shadow-md rounded-lg">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[#fbbf24] bg-blue-950 shrink-0">
+              <img src="/jakub.png" alt="Jakub" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
@@ -69,9 +69,9 @@ export const ChampionBar: React.FC<ChampionBarProps> = ({
 
         {/* Šimi */}
         {simi && (
-          <div id="hero-card-simi" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f]/80 p-1 sm:p-1.5 min-w-[115px] sm:min-w-[140px] shadow-sm rounded">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-purple-950 border border-[#c084fc] flex items-center justify-center text-xs font-bold text-[#c084fc] font-serif rounded">
-              Š
+          <div id="hero-card-simi" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f]/80 p-1 sm:p-1.5 min-w-[115px] sm:min-w-[140px] shadow-sm rounded-lg">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[#c084fc] bg-purple-950 shrink-0">
+              <img src="/simi.png" alt="Šimi" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
@@ -94,9 +94,9 @@ export const ChampionBar: React.FC<ChampionBarProps> = ({
 
         {/* Filip */}
         {filip && (
-          <div id="hero-card-filip" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f]/80 p-1 sm:p-1.5 min-w-[115px] sm:min-w-[140px] shadow-sm rounded">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 bg-amber-950 border border-[#fbbf24] flex items-center justify-center text-xs font-bold text-[#fbbf24] font-serif rounded">
-              F
+          <div id="hero-card-filip" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f]/80 p-1 sm:p-1.5 min-w-[115px] sm:min-w-[140px] shadow-sm rounded-lg">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[#fbbf24] bg-amber-950 shrink-0">
+              <img src="/filip.png" alt="Filip" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
