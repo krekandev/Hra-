@@ -59,8 +59,25 @@ export default function App() {
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
-  // Radar coordinates
-  const [cameraPos, setCameraPos] = useState<{ x: number; y: number }>({ x: 580, y: 550 });
+  // Preload all portrait images in background into browser cache immediately
+  useEffect(() => {
+    const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+    const imagesToPreload = [
+      'dievcata.webp',
+      'jakub.webp',
+      'simi.webp',
+      'filip.webp',
+      'marek.webp',
+      'samko.webp',
+      'emi_sobi.webp',
+      'zofi.webp',
+      'mirnyx_sova.webp'
+    ];
+    imagesToPreload.forEach(name => {
+      const img = new Image();
+      img.src = `${baseUrl}/${name}`;
+    });
+  }, []);
 
   // Initialize Game Engine
   useEffect(() => {
