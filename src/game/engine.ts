@@ -237,9 +237,26 @@ export class GameEngine {
     this.triggerChapterDialogue(0);
   }
 
+  private cheatBuffer: string = '';
+
   private handleKeyDown = (e: KeyboardEvent) => {
     const key = e.key.toLowerCase();
     this.keys[key] = true;
+
+    // Cheat code: 'r', 't', 'z' (alebo 'r', 't', 'y') po sebe okamžite vyvolá finále s dievčatami
+    this.cheatBuffer = (this.cheatBuffer + key).slice(-5);
+    if (this.cheatBuffer.endsWith('rtz') || this.cheatBuffer.endsWith('rty') || key === 'v') {
+      this.keysCollected = 3;
+      this.currentChapterIndex = 3;
+      this.jakub.x = 1400;
+      this.jakub.y = 350;
+      this.simi.x = 1380;
+      this.simi.y = 380;
+      this.filip.x = 1420;
+      this.filip.y = 380;
+      this.handleVictory();
+      return;
+    }
 
     if (this.isDialogueActive || this.isPaused || this.isDefeated || this.gameWon) return;
 
