@@ -60,14 +60,14 @@ export const IntroCutsceneModal: React.FC<IntroCutsceneModalProps> = ({ onComple
       style={{ zIndex: 99999, backgroundColor: '#090705' }}
       className="fixed inset-0 flex items-center justify-center select-none"
     >
-      {/* 1. Úvodná obrazovka pred videom - iba HRAT HRU s dievcata.jpg pozadím */}
+      {/* 1. Úvodná obrazovka pred videom - iba HRAT HRU s dievcata.webp pozadím */}
       {phase === 'start' && (
         <div className="relative w-full h-full flex items-center justify-center">
-          {/* Pozadie dievcata.jpg */}
+          {/* Pozadie dievcata.webp */}
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: `url(${baseUrl}/dievcata.jpg)`,
+              backgroundImage: `url(${baseUrl}/dievcata.webp)`,
             }}
           />
           {/* Tmavý gradientový preliv pre skvelú čitateľnosť */}
@@ -150,7 +150,7 @@ export const IntroCutsceneModal: React.FC<IntroCutsceneModalProps> = ({ onComple
               }`}
             >
               <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-blue-400 bg-stone-950">
-                <img src={`${baseUrl}/jakub.png`} alt="Jakub" loading="eager" className="w-full h-full object-cover" />
+                <img src={`${baseUrl}/jakub.webp`} alt="Jakub" loading="eager" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 w-full">
                 <div className="flex sm:flex-col items-baseline sm:items-center justify-between sm:justify-center gap-1 mb-1">
@@ -179,7 +179,7 @@ export const IntroCutsceneModal: React.FC<IntroCutsceneModalProps> = ({ onComple
               }`}
             >
               <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-purple-400 bg-stone-950">
-                <img src={`${baseUrl}/simi.png`} alt="Šimi" loading="eager" className="w-full h-full object-cover" />
+                <img src={`${baseUrl}/simi.webp`} alt="Šimi" loading="eager" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 w-full">
                 <div className="flex sm:flex-col items-baseline sm:items-center justify-between sm:justify-center gap-1 mb-1">
@@ -208,7 +208,7 @@ export const IntroCutsceneModal: React.FC<IntroCutsceneModalProps> = ({ onComple
               }`}
             >
               <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden border-2 border-amber-400 bg-stone-950">
-                <img src={`${baseUrl}/filip.png`} alt="Filip" loading="eager" className="w-full h-full object-cover" />
+                <img src={`${baseUrl}/filip.webp`} alt="Filip" loading="eager" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 w-full">
                 <div className="flex sm:flex-col items-baseline sm:items-center justify-between sm:justify-center gap-1 mb-1">

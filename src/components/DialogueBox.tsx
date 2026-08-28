@@ -87,49 +87,51 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
   let badgeClass = 'bg-amber-950/90 border-[#fbbf24] text-[#fbbf24]';
   let speakerRole = 'Postava';
 
+  const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
+
   if (currentLine.speaker === 'Marek' || currentLine.speaker === 'Rozprávač' || currentLine.speaker === 'Rozprávač Marek') {
     speakerIcon = '🎭';
-    speakerPhoto = '/marek.jpg';
+    speakerPhoto = `${baseUrl}/marek.webp`;
     badgeClass = 'bg-red-950/90 border-red-500 text-red-200';
     speakerRole = 'Rozprávač';
   } else if (currentLine.speaker === 'Jakub') {
     speakerIcon = '🪓';
-    speakerPhoto = '/jakub.png';
+    speakerPhoto = `${baseUrl}/jakub.webp`;
     badgeClass = 'bg-blue-950/90 border-blue-500 text-blue-300';
     speakerRole = 'Vodca družiny';
   } else if (currentLine.speaker === 'Šimi') {
     speakerIcon = '🪗';
-    speakerPhoto = '/simi.png';
+    speakerPhoto = `${baseUrl}/simi.webp`;
     badgeClass = 'bg-purple-950/90 border-purple-500 text-purple-300';
     speakerRole = 'Heligonkár';
   } else if (currentLine.speaker === 'Filip') {
     speakerIcon = '💥';
-    speakerPhoto = '/filip.png';
+    speakerPhoto = `${baseUrl}/filip.webp`;
     badgeClass = 'bg-amber-950/90 border-amber-500 text-amber-300';
     speakerRole = 'Zbojník';
   } else if (currentLine.speaker === 'Samko Szabó' || currentLine.speaker === 'Samko') {
     speakerIcon = '👨‍🌾';
-    speakerPhoto = '/samko.jpg';
+    speakerPhoto = `${baseUrl}/samko.webp`;
     badgeClass = 'bg-emerald-950/90 border-emerald-500 text-emerald-300';
     speakerRole = 'Detviansky sprievodca';
   } else if (currentLine.speaker === 'Emi Sobi') {
     speakerIcon = '🥃';
-    speakerPhoto = '/emi_sobi.jpg';
+    speakerPhoto = `${baseUrl}/emi_sobi.webp`;
     badgeClass = 'bg-orange-950/90 border-orange-500 text-orange-300';
     speakerRole = 'Hostiteľka z Detvy';
   } else if (currentLine.speaker === 'Žofi') {
     speakerIcon = '🪢';
-    speakerPhoto = '/zofi.jpg';
+    speakerPhoto = `${baseUrl}/zofi.webp`;
     badgeClass = 'bg-amber-950/90 border-amber-500 text-amber-300';
     speakerRole = 'Majster biča z Terchovej';
   } else if (currentLine.speaker === 'Mirnyx Sova') {
     speakerIcon = '🤠';
-    speakerPhoto = '/mirnyx_sova.jpg';
+    speakerPhoto = `${baseUrl}/mirnyx_sova.webp`;
     badgeClass = 'bg-yellow-950/90 border-yellow-500 text-yellow-300';
     speakerRole = 'Majster širákov z Myjavy';
   } else if (currentLine.speaker === 'Dievčatá zo súboru' || currentLine.speaker === 'Dievčatá' || currentLine.speakerHeroId === 'girls') {
     speakerIcon = '🌸';
-    speakerPhoto = '/dievcata.jpg';
+    speakerPhoto = `${baseUrl}/dievcata.webp`;
     badgeClass = 'bg-rose-950/90 border-rose-500 text-rose-300';
     speakerRole = 'Folklórny súbor';
   }
