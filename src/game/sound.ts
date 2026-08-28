@@ -12,7 +12,7 @@ class SoundEngine {
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
-        // Preload custom audio buffers
+        const base = import.meta.env.BASE_URL.replace(/\/$/, '');
         [
           'jakub_intro', 'simi_intro', 'filip_intro',
           'jakub_ch2', 'simi_ch2', 'filip_ch2',
@@ -20,7 +20,7 @@ class SoundEngine {
           'filip_victory', 'simi_victory', 'jakub_victory',
           'jakub_zasah', 'filip_dostali_ma', 'simon_podme_na_nich',
           'jakub_sme_tu'
-        ].forEach(name => this.loadAudioBuffer(`/sounds/${name}.wav`));
+        ].forEach(name => this.loadAudioBuffer(`${base}/sounds/${name}.wav`));
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
@@ -467,13 +467,17 @@ class SoundEngine {
     this.stopCustomAudio();
 
     // Clean base name
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     const baseName = filename.replace(/\.(aac|m4a|mp3|wav|ogg)$/i, '');
+    const cleanFile = filename.startsWith('/') ? filename : `/${filename}`;
     const candidatePaths = [
-      `/sounds/${baseName}.wav`,
-      `/sounds/${baseName}.mp3`,
-      `/sounds/${baseName}.m4a`,
-      `/sounds/${baseName}.aac`,
-      filename.startsWith('/') ? filename : `/sounds/${filename}`
+      `${base}/sounds/${baseName}.wav`,
+      `${base}/sounds/${baseName}.aac`,
+      `${base}/sounds/${baseName}.mp3`,
+      `${base}/sounds/${baseName}.m4a`,
+      `${base}/sounds/${baseName}.ogg`,
+      `${base}${cleanFile}`,
+      `${base}/sounds${cleanFile}`
     ];
 
     // 1. Try playing via Web Audio Buffer (Zero latency, best quality)
