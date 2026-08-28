@@ -127,8 +127,9 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
     speakerPhoto = '/mirnyx_sova.jpg';
     badgeClass = 'bg-yellow-950/90 border-yellow-500 text-yellow-300';
     speakerRole = 'Majster širákov z Myjavy';
-  } else if (currentLine.speaker === 'Dievčatá zo súboru') {
+  } else if (currentLine.speaker === 'Dievčatá zo súboru' || currentLine.speaker === 'Dievčatá' || currentLine.speakerHeroId === 'girls') {
     speakerIcon = '🌸';
+    speakerPhoto = '/dievcata.jpg';
     badgeClass = 'bg-rose-950/90 border-rose-500 text-rose-300';
     speakerRole = 'Folklórny súbor';
   }
