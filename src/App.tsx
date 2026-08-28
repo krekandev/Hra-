@@ -9,11 +9,16 @@ import { RelicModal } from './components/RelicModal';
 import { FestivalChallengeModal } from './components/FestivalChallengeModal';
 import { GameOverModal } from './components/GameOverModal';
 import { VictoryModal } from './components/VictoryModal';
+import { IntroCutsceneModal } from './components/IntroCutsceneModal';
 import { ControlsGuide } from './components/ControlsGuide';
 import { Joystick } from './components/Joystick';
 import { ActionPad } from './components/ActionPad';
 import { sound } from './game/sound';
 import { STORY_CHAPTERS } from './game/story';
+
+import { HomeModal } from './components/HomeModal';
+import { TavernModal } from './components/TavernModal';
+import { StorageManager } from './game/storage';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -26,12 +31,17 @@ export default function App() {
     q: { current: 0, max: 2.2, name: "Jakub's Cleave", desc: '' },
     w: { current: 0, max: 3.0, name: "Šimi's Arcane Bolt", desc: '' },
     e: { current: 0, max: 4.5, name: "Filip's Vanguard Slam", desc: '' },
+    r: { current: 0, max: 60.0, name: "Trojhlasný Vír", desc: '' },
   });
   const [currentChapter, setCurrentChapter] = useState<StoryChapter>(STORY_CHAPTERS[0]);
   const [chapterKills, setChapterKills] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
   const [totalKills, setTotalKills] = useState<number>(0);
   const [activeRelics, setActiveRelics] = useState<RelicItem[]>([]);
+
+  // Collectibles & Dukaty
+  const [collectibles, setCollectibles] = useState(StorageManager.getCollectibles());
+  const [dukaty, setDukaty] = useState(StorageManager.getDukaty());
 
   // Modals & Dialogue
   const [activeDialogue, setActiveDialogue] = useState<DialogueLine[] | null>(null);
@@ -41,13 +51,16 @@ export default function App() {
   const [activeChallenge, setActiveChallenge] = useState<FestivalChallenge | null>(null);
   const [challengeShotCallback, setChallengeShotCallback] = useState<((shot: number) => void) | null>(null);
   const [challengeCompleteCallback, setChallengeCompleteCallback] = useState<(() => void) | null>(null);
+  const [showHomeModal, setShowHomeModal] = useState<boolean>(false);
+  const [showTavernModal, setShowTavernModal] = useState<boolean>(false);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isVictory, setIsVictory] = useState<boolean>(false);
+  const [showCutscene, setShowCutscene] = useState<boolean>(true);
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   // Radar coordinates
-  const [cameraPos, setCameraPos] = useState<{ x: number; y: number }>({ x: 480, y: 450 });
+  const [cameraPos, setCameraPos] = useState<{ x: number; y: number }>({ x: 580, y: 550 });
 
   // Initialize Game Engine
   useEffect(() => {
@@ -82,6 +95,7 @@ export default function App() {
           q: { ...updatedCooldowns.q },
           w: { ...updatedCooldowns.w },
           e: { ...updatedCooldowns.e },
+          r: { ...updatedCooldowns.r },
         });
         if (engineRef.current) {
           setScore(engineRef.current.score);
@@ -98,6 +112,14 @@ export default function App() {
         setChallengeShotCallback(() => onShot);
         setChallengeCompleteCallback(() => onComplete);
       },
+      onOpenHome: () => {
+        setCollectibles(StorageManager.getCollectibles());
+        setDukaty(StorageManager.getDukaty());
+        setShowHomeModal(true);
+      },
+      onOpenTavern: () => {
+        setShowTavernModal(true);
+      },
       onGameOver: (finalScore) => {
         setScore(finalScore);
         setIsGameOver(true);
@@ -105,10 +127,14 @@ export default function App() {
       onVictory: (finalScore) => {
         setScore(finalScore);
         setIsVictory(true);
+        // Odomknutie finálnej trofeje do pamäte
+        StorageManager.unlockCollectible('stuhy_dievcat');
       },
     });
 
     engineRef.current = engine;
+    // Hra je pozastavená, kým si hráč neprehrá prológ a nevyberie postavu
+    engine.setPaused(true);
     engine.start();
 
     return () => {
@@ -154,11 +180,14 @@ export default function App() {
   const handleRestart = () => {
     setIsGameOver(false);
     setIsVictory(false);
+    setShowCutscene(true);
     setActiveDialogue(null);
     setOfferedRelics(null);
     setActiveChallenge(null);
     setChallengeShotCallback(null);
     setChallengeCompleteCallback(null);
+    setShowHomeModal(false);
+    setShowTavernModal(false);
     setActiveRelics([]);
     setCurrentChapter(STORY_CHAPTERS[0]);
     setChapterKills(0);
@@ -166,6 +195,7 @@ export default function App() {
     setTotalKills(0);
     if (engineRef.current) {
       engineRef.current.restart();
+      engineRef.current.setPaused(true);
     }
   };
 
@@ -224,6 +254,7 @@ export default function App() {
           onCastQ={() => engineRef.current?.castJakubSlash()}
           onCastW={() => engineRef.current?.castSimiMagic()}
           onCastE={() => engineRef.current?.castFilipSlam()}
+          onCastR={() => engineRef.current?.castUltimateWhirlwind()}
         />
       )}
 
@@ -237,10 +268,70 @@ export default function App() {
       />
 
       {/* Story Dialogue Box */}
-      {activeDialogue && (
+      {activeDialogue && !showCutscene && (
         <DialogueBox
           lines={activeDialogue}
           onComplete={handleDialogueComplete}
+        />
+      )}
+
+      {/* Intro Prologue Cutscene Video Modal & Hero Selection */}
+      {showCutscene && (
+        <IntroCutsceneModal
+          onComplete={(selectedHero) => {
+            setShowCutscene(false);
+            sound.startDynamicMusic('explore');
+            if (engineRef.current) {
+              engineRef.current.setChosenHero(selectedHero);
+              engineRef.current.setPaused(false);
+              engineRef.current.triggerChapterDialogue(0);
+            }
+          }}
+        />
+      )}
+
+      {/* Zbojnícka Krčma Minigames Modal */}
+      {showTavernModal && (
+        <TavernModal
+          onArmWrestlingWin={(gainedDukaty, buffText) => {
+            const total = StorageManager.addDukaty(gainedDukaty);
+            setDukaty(total);
+            if (engineRef.current) {
+              engineRef.current.heroes.forEach(h => {
+                h.stats.attackPower = Math.floor(h.stats.attackPower * 1.25);
+              });
+              engineRef.current.floatingTexts.push({
+                id: Math.random().toString(),
+                x: engineRef.current.jakub.x,
+                y: engineRef.current.jakub.y - 45,
+                text: `💥 VÝHRA V PÁKE! +${gainedDukaty} DUKÁTOV & ${buffText}`,
+                color: '#fbbf24',
+                alpha: 1,
+                life: 2.2,
+                isCrit: true,
+              });
+            }
+          }}
+          onDanceWin={(gainedDukaty, buffText) => {
+            const total = StorageManager.addDukaty(gainedDukaty);
+            setDukaty(total);
+            if (engineRef.current) {
+              engineRef.current.heroes.forEach(h => {
+                h.speed = Math.floor(h.speed * 1.35);
+              });
+              engineRef.current.floatingTexts.push({
+                id: Math.random().toString(),
+                x: engineRef.current.jakub.x,
+                y: engineRef.current.jakub.y - 45,
+                text: `🔥 ZBOJNÍCKY ODZEMOK! +${gainedDukaty} DUKÁTOV & ${buffText}`,
+                color: '#34d399',
+                alpha: 1,
+                life: 2.2,
+                isCrit: true,
+              });
+            }
+          }}
+          onClose={() => setShowTavernModal(false)}
         />
       )}
 

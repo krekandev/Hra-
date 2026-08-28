@@ -19,8 +19,8 @@ export const Minimap: React.FC<MinimapProps> = ({
   cameraY,
   currentZone,
 }) => {
-  const mapWidth = 90;
-  const mapHeight = 65;
+  const mapWidth = 110;
+  const mapHeight = 80;
 
   const scaleX = mapWidth / MAP_WIDTH;
   const scaleY = mapHeight / MAP_HEIGHT;
@@ -35,7 +35,7 @@ export const Minimap: React.FC<MinimapProps> = ({
       <div className="bg-[#1c1917]/95 backdrop-blur-md border-2 border-[#78350f] p-1 shadow-2xl shadow-black rounded-lg pointer-events-auto">
         <div className="flex items-center justify-between px-1 mb-0.5 border-b border-[#78350f]/60 text-[7px] font-serif font-bold text-[#fbbf24] uppercase">
           <span>MAPA KRAJA</span>
-          <span className="text-[6px] font-mono text-stone-400">2.8x2.0km</span>
+          <span className="text-[6px] font-mono text-stone-400">3.6x2.6km</span>
         </div>
 
         <div
@@ -46,82 +46,96 @@ export const Minimap: React.FC<MinimapProps> = ({
           <div
             className="absolute bg-slate-700 border border-slate-500 rounded-xs flex items-center justify-center text-[7px]"
             style={{
-              left: `${950 * scaleX}px`,
+              left: `${1350 * scaleX}px`,
               top: `${80 * scaleY}px`,
-              width: `${900 * scaleX}px`,
-              height: `${220 * scaleY}px`,
+              width: `${1000 * scaleX}px`,
+              height: `${280 * scaleY}px`,
             }}
             title="Severný Hrad"
           >
             🏰
           </div>
 
-          {/* Detva Festival Arena */}
+          {/* Start Chalúpka (Náš Domov) */}
           <div
-            className="absolute bg-amber-800/80 rounded-full flex items-center justify-center text-[7px]"
+            className="absolute bg-amber-950 flex items-center justify-center text-[7px]"
             style={{
-              left: `${480 * scaleX - 4}px`,
-              top: `${1450 * scaleY - 4}px`,
+              left: `${490 * scaleX - 4}px`,
+              top: `${540 * scaleY - 4}px`,
               width: `8px`,
               height: `8px`,
+            }}
+            title="Náš Domov (Sieň Trofejí)"
+          >
+            🏡
+          </div>
+
+          {/* Zbojnícka Krčma */}
+          <div
+            className="absolute bg-amber-900 border border-amber-600 rounded flex items-center justify-center text-[7px]"
+            style={{
+              left: `${1240 * scaleX - 4}px`,
+              top: `${1270 * scaleY - 4}px`,
+              width: `8px`,
+              height: `8px`,
+            }}
+            title="Zbojnícka Krčma (Páka & Tanec)"
+          >
+            🍻
+          </div>
+
+          {/* Detva Festival Arena */}
+          <div
+            className="absolute bg-amber-800/90 rounded-full flex items-center justify-center text-[7px]"
+            style={{
+              left: `${580 * scaleX - 4}px`,
+              top: `${1950 * scaleY - 4}px`,
+              width: `9px`,
+              height: `9px`,
             }}
             title="Festival Detva"
           >
             🎪
           </div>
 
-          {/* Myjava Festival Arena */}
-          <div
-            className="absolute bg-amber-800/80 rounded-full flex items-center justify-center text-[7px]"
-            style={{
-              left: `${1500 * scaleX - 4}px`,
-              top: `${650 * scaleY - 4}px`,
-              width: `8px`,
-              height: `8px`,
-            }}
-            title="Festival Myjava"
-          >
-            🎪
-          </div>
-
           {/* Terchová Festival Arena */}
           <div
-            className="absolute bg-amber-800/80 rounded-full flex items-center justify-center text-[7px]"
+            className="absolute bg-amber-800/90 rounded-full flex items-center justify-center text-[7px]"
             style={{
-              left: `${2200 * scaleX - 4}px`,
-              top: `${1450 * scaleY - 4}px`,
-              width: `8px`,
-              height: `8px`,
+              left: `${2850 * scaleX - 4}px`,
+              top: `${1950 * scaleY - 4}px`,
+              width: `9px`,
+              height: `9px`,
             }}
             title="Festival Terchová"
           >
             🎪
           </div>
 
-          {/* Start Chalúpka */}
+          {/* Myjava Festival Arena */}
           <div
-            className="absolute bg-amber-950 flex items-center justify-center text-[6px]"
+            className="absolute bg-amber-800/90 rounded-full flex items-center justify-center text-[7px]"
             style={{
-              left: `${480 * scaleX - 3}px`,
-              top: `${450 * scaleY - 3}px`,
-              width: `6px`,
-              height: `6px`,
+              left: `${1950 * scaleX - 4}px`,
+              top: `${850 * scaleY - 4}px`,
+              width: `9px`,
+              height: `9px`,
             }}
-            title="Stará Chalúpka"
+            title="Festival Myjava"
           >
-            🏠
+            🎪
           </div>
 
           {/* Undiscovered Zone Fog of War Overlays */}
-          {/* Terchová Fog (Unlocked at Chapter 2: currentZone >= 1) */}
+          {/* Terchová Fog */}
           {currentZone < 1 && (
             <div
               className="absolute bg-slate-950/95 backdrop-blur-[1px] flex items-center justify-center border-l border-amber-900/60"
               style={{
-                left: `${1000 * scaleX}px`,
-                top: `${1040 * scaleY}px`,
-                width: `${(MAP_WIDTH - 1000) * scaleX}px`,
-                height: `${(MAP_HEIGHT - 1040) * scaleY}px`,
+                left: `${1350 * scaleX}px`,
+                top: `${1450 * scaleY}px`,
+                width: `${(MAP_WIDTH - 1350) * scaleX}px`,
+                height: `${(MAP_HEIGHT - 1450) * scaleY}px`,
               }}
               title="Terchová (Zamknutá oblasť)"
             >
@@ -129,17 +143,33 @@ export const Minimap: React.FC<MinimapProps> = ({
             </div>
           )}
 
-          {/* Myjava Fog (Unlocked at Chapter 3: currentZone >= 2) */}
+          {/* Myjava Fog */}
           {currentZone < 2 && (
             <div
               className="absolute bg-slate-950/95 backdrop-blur-[1px] flex items-center justify-center border-l border-amber-900/60"
               style={{
-                left: `${1000 * scaleX}px`,
-                top: `${280 * scaleY}px`,
-                width: `${(MAP_WIDTH - 1000) * scaleX}px`,
-                height: `${(1040 - 280) * scaleY}px`,
+                left: `${1350 * scaleX}px`,
+                top: `${380 * scaleY}px`,
+                width: `${(MAP_WIDTH - 1350) * scaleX}px`,
+                height: `${(1450 - 380) * scaleY}px`,
               }}
               title="Myjava (Zamknutá oblasť)"
+            >
+              <span className="text-[6px] text-amber-500/70">🔒</span>
+            </div>
+          )}
+
+          {/* Castle Fog */}
+          {currentZone < 3 && (
+            <div
+              className="absolute bg-slate-950/95 backdrop-blur-[1px] flex items-center justify-center border-b border-amber-900/60"
+              style={{
+                left: `0px`,
+                top: `0px`,
+                width: `${MAP_WIDTH * scaleX}px`,
+                height: `${380 * scaleY}px`,
+              }}
+              title="Severný Hrad (Zamknutá oblasť)"
             >
               <span className="text-[6px] text-amber-500/70">🔒</span>
             </div>

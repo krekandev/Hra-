@@ -7,13 +7,15 @@ interface ActionPadProps {
   onCastQ: () => void;
   onCastW: () => void;
   onCastE: () => void;
+  onCastR: () => void;
 }
 
 export const ActionPad: React.FC<ActionPadProps> = ({
   cooldowns,
   onCastQ,
   onCastW,
-  onCastE
+  onCastE,
+  onCastR
 }) => {
   const triggerAttack = (e: React.PointerEvent | React.TouchEvent, action: () => void, cooldown: number) => {
     e.preventDefault();
@@ -93,6 +95,34 @@ export const ActionPad: React.FC<ActionPadProps> = ({
           </div>
         </div>
 
+        {/* --- Button U: Ultimate Trojhlasný Vír (Left Center Special) --- */}
+        <div className="absolute top-12 -left-6 sm:-left-7">
+          <div
+            id="mobile-btn-r"
+            role="button"
+            tabIndex={-1}
+            onPointerDown={(e) => triggerAttack(e, onCastR, cooldowns.r.current)}
+            onTouchStart={(e) => triggerAttack(e, onCastR, cooldowns.r.current)}
+            className={`w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-amber-600 via-red-600 to-amber-700 border-2 border-[#fbbf24] hover:border-white active:scale-90 flex flex-col items-center justify-center shadow-2xl relative transition-transform overflow-hidden cursor-pointer touch-none shadow-[0_0_20px_rgba(245,158,11,0.5)] ${
+              cooldowns.r.current > 0 ? 'opacity-50 grayscale cursor-not-allowed' : 'animate-pulse'
+            }`}
+            title="Kláves U: Trojhlasný Vír (Superschopnosť)"
+          >
+            <span className="text-[10px] font-mono text-white font-black absolute top-1 left-2">U</span>
+            <span className="text-base pointer-events-none mt-1">🌪️</span>
+            <span className="text-[6px] font-serif uppercase tracking-wider text-amber-200 pointer-events-none font-black">VÍR</span>
+
+            {/* Cooldown */}
+            {cooldowns.r.current > 0 && (
+              <div className="absolute inset-0 bg-black/85 flex items-center justify-center pointer-events-none">
+                <span className="font-mono text-xs text-amber-300 font-bold">
+                  {Math.ceil(cooldowns.r.current)}s
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* --- Button I: Jakub Zbojnícka Valaška (Bottom-Center Primary) --- */}
         <div className="absolute bottom-0 right-1.5 sm:right-2">
           <div
@@ -104,7 +134,7 @@ export const ActionPad: React.FC<ActionPadProps> = ({
             className={`w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-[#1c1917]/95 border-2 border-[#fbbf24] hover:border-amber-200 active:scale-90 flex flex-col items-center justify-center shadow-2xl relative transition-transform overflow-hidden cursor-pointer touch-none shadow-[0_0_15px_rgba(251,191,36,0.3)] ${
               cooldowns.q.current > 0 ? 'opacity-60 cursor-not-allowed' : 'active:bg-amber-950/80'
             }`}
-            title="I / Q: Jakub Sek Valaškou"
+            title="Kláves I: Jakub Sek Valaškou"
           >
             <span className="text-[10px] font-mono text-[#fbbf24] font-bold absolute top-1 left-3">I</span>
             <span className="text-xl pointer-events-none mt-1">🪓</span>

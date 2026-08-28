@@ -33,27 +33,21 @@ export const STORY_CHAPTERS: StoryChapter[] = [
       {
         speaker: 'Samko Szabó',
         speakerHeroId: 'samko',
-        mood: 'mysterious',
-        text: 'Vitajte, junáci! Zlí zbojníci prepadli festival, uniesli všetky dievčatá zo súboru a zamkli ich do Hradu na severe!'
-      },
-      {
-        speaker: 'Samko Szabó',
-        speakerHeroId: 'samko',
         mood: 'determined',
-        text: 'Hradná brána vyžaduje 3 kľúče. Musíte oslobodiť festivaly v poradí: 1. Detva, 2. Terchová a 3. Myjava! Na každom festivale stúpte na Festivalový Totem, porazte bosa a vezmite si kľúč!'
+        text: 'Zbojníci zablokovali všetky tri festivaly a dievčatá uväznili na Severnom Hrade! Brána vyžaduje 3 kľúče z Detvy, Terchovej a Myjavy!'
       },
       {
         speaker: 'Šimi',
         speakerHeroId: 'simi',
         mood: 'determined',
-        text: 'Moja heligónka [O / W] vystrelí magické sonické noty. Každého zbojníka odfúkne!',
+        text: 'Moja heligónka [O] vystrelí magické sonické noty. Každého zbojníka odfúkne!',
         voiceAudio: 'simi_intro'
       },
       {
         speaker: 'Filip',
         speakerHeroId: 'filip',
         mood: 'smug',
-        text: 'A môj zbojnícky dupák [P / E] roztrasie zem! Jakub vedie útok valaškou [I / Q]. Hor sa do Detvy!',
+        text: 'A môj zbojnícky dupák [P] roztrasie zem! Jakub vedie útok valaškou [I]. A superschopnosť [U] ich rozmetá celých!',
         voiceAudio: 'filip_intro'
       }
     ]
@@ -62,7 +56,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: 2,
     title: 'Kapitola II: Terchovská Tiesňava',
     festivalName: 'Terchová',
-    objective: 'Prejdi cez odomknutú barikádu do Terchovej (juhovýchod), stúp na Totem a poraz Jánošíkov Tieň!',
+    objective: 'Prejdi cez odomknutú barikádu do Terchovej (juhovýchod 2850, 1950), stúp na Totem a poraz Jánošíkov Tieň!',
     requiredKills: 10,
     zoneRequired: 2,
     completed: false,
@@ -71,8 +65,8 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     bossDefeated: false,
     totemActivated: false,
     keyCollected: false,
-    totemX: 2200,
-    totemY: 1450,
+    totemX: 2850,
+    totemY: 1950,
     dialogueTrigger: [
       {
         speaker: 'Jakub',
@@ -101,7 +95,7 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     id: 3,
     title: 'Kapitola III: Myjavské Kopanice',
     festivalName: 'Myjava',
-    objective: 'Prejdi na sever do Myjavy cez odomknutý prechod, stúp na Myjavský Totem a poraz Zbojníckeho Kapitána!',
+    objective: 'Prejdi na sever do Myjavy cez odomknutý prechod (1950, 850), stúp na Myjavský Totem a poraz Zbojníckeho Kapitána!',
     requiredKills: 12,
     zoneRequired: 3,
     completed: false,
@@ -110,8 +104,8 @@ export const STORY_CHAPTERS: StoryChapter[] = [
     bossDefeated: false,
     totemActivated: false,
     keyCollected: false,
-    totemX: 1500,
-    totemY: 650,
+    totemX: 1950,
+    totemY: 850,
     dialogueTrigger: [
       {
         speaker: 'Šimi',

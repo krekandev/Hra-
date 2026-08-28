@@ -560,6 +560,70 @@ export class PixelRenderer {
         ctx.fillText('🔒 ZAMKNUTÉ', obs.x + obs.width / 2, obs.y - 10);
       }
 
+    } else if (obs.type === 'tavern') {
+      // Zbojnícka Krčma (Veľká drevená stavba s komínom, sudom piva a nápisom KRČMA)
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(obs.x, obs.y + 35, obs.width, obs.height - 35);
+      // Drevené okná so sviečkami
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(obs.x + 20, obs.y + 55, 25, 25);
+      ctx.fillRect(obs.x + obs.width - 45, obs.y + 55, 25, 25);
+      // Široké vstupné dvere s pivným sudom
+      ctx.fillStyle = '#291e13';
+      ctx.fillRect(obs.x + obs.width / 2 - 18, obs.y + 50, 36, obs.height - 50);
+      ctx.fillStyle = '#b45309'; // Sud piva pri dverách
+      ctx.beginPath();
+      ctx.arc(obs.x + obs.width / 2 - 28, obs.y + obs.height - 15, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Strecha s komínom
+      ctx.fillStyle = '#291e13';
+      ctx.beginPath();
+      ctx.moveTo(obs.x - 10, obs.y + 38);
+      ctx.lineTo(obs.x + obs.width / 2, obs.y);
+      ctx.lineTo(obs.x + obs.width + 10, obs.y + 38);
+      ctx.closePath();
+      ctx.fill();
+
+      // Vývesný štít s pivom
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(obs.x + obs.width / 2 - 35, obs.y + 20, 70, 16);
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 8px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🍻 ZBOJNÍCKA KRČMA', obs.x + obs.width / 2, obs.y + 31);
+
+    } else if (obs.type === 'home_door') {
+      // Dvere do rodného domu
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 7px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('VSTUP 🏡', obs.x + obs.width / 2, obs.y + obs.height / 2 + 2);
+
+    } else if (obs.type === 'booth') {
+      // Jarmokový folklórny stánok s plachtou
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(obs.x, obs.y + 15, obs.width, obs.height - 15);
+      // Pásikavá strieška (červeno-biela)
+      for (let i = 0; i < obs.width; i += 10) {
+        ctx.fillStyle = (i / 10) % 2 === 0 ? '#ef4444' : '#f8fafc';
+        ctx.fillRect(obs.x + i, obs.y, 10, 15);
+      }
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 6.5px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('JARMOK 🥨', obs.x + obs.width / 2, obs.y + obs.height - 4);
+
+    } else if (obs.type === 'bench') {
+      // Drevené lavičky amfiteátra
+      ctx.fillStyle = '#5c3a21';
+      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+      ctx.fillStyle = '#3d2514';
+      ctx.fillRect(obs.x, obs.y + 4, obs.width, 2);
+      ctx.fillRect(obs.x, obs.y + 12, obs.width, 2);
+
     } else if (obs.type === 'festival_stage') {
       // Amfiteáter / Festivalové pódium s vyrezávanou drevenou bránou a stuhami
       ctx.fillStyle = '#78350f';
@@ -569,11 +633,17 @@ export class PixelRenderer {
 
       // Drevené stĺpy pódia
       ctx.fillStyle = '#b45309';
-      ctx.fillRect(obs.x, obs.y - 18, 8, obs.height + 18);
-      ctx.fillRect(obs.x + obs.width - 8, obs.y - 18, 8, obs.height + 18);
+      ctx.fillRect(obs.x, obs.y - 25, 10, obs.height + 25);
+      ctx.fillRect(obs.x + obs.width - 10, obs.y - 25, 10, obs.height + 25);
 
       // Horný preklad s vyrezávaným folklórnym nápisom
-      ctx.fillRect(obs.x, obs.y - 22, obs.width, 10);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(obs.x - 5, obs.y - 32, obs.width + 10, 18);
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 9px serif';
+      ctx.textAlign = 'center';
+      const stageTitle = obs.label || 'FOLKLÓRNY FESTIVAL 🪈';
+      ctx.fillText(stageTitle, obs.x + obs.width / 2, obs.y - 20);
 
       // Vlajúce pestrofarebné stuhy
       const wave = Math.sin(animFrame * 0.1) * 4;

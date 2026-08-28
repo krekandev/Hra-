@@ -10,6 +10,8 @@ export interface GameCallbacks {
   onHeroStatsUpdate: (heroes: Hero[], cooldowns: SkillCooldown) => void;
   onRelicChoice: (relics: RelicItem[], onSelect: (relic: RelicItem) => void) => void;
   onFestivalChallenge: (challenge: FestivalChallenge, onShot: (shot: number) => void, onComplete: () => void) => void;
+  onOpenHome?: () => void;
+  onOpenTavern?: () => void;
   onGameOver: (score: number) => void;
   onVictory: (score: number) => void;
 }
@@ -46,11 +48,15 @@ export class GameEngine {
   public lootOrbs: LootOrb[] = [];
   public activeRelics: RelicItem[] = [];
 
+  // Chosen Lead Hero ('jakub' | 'simi' | 'filip')
+  public chosenHero: HeroId = 'jakub';
+
   // Folklore Skill Cooldowns (in seconds)
   public cooldowns: SkillCooldown = {
-    q: { current: 0, max: 2.0, name: "Jakubova Valaška (I / Q)", desc: "Sek ostrou zbojníckou valaškou nablízko." },
-    w: { current: 0, max: 2.8, name: "Šimiho Heligónka (O / W)", desc: "Vystrelí hľadajúci magický sonický tón z heligónky." },
-    e: { current: 0, max: 4.2, name: "Filipov Dupák (P / E)", desc: "Mocný zbojnícky dupák, ktorý zatrasie zemou a odhodí nepriateľov." },
+    q: { current: 0, max: 2.0, name: "Jakubova Valaška [I]", desc: "Sek ostrou zbojníckou valaškou nablízko." },
+    w: { current: 0, max: 2.8, name: "Šimiho Heligónka [O]", desc: "Vystrelí hľadajúci magický sonický tón z heligónky." },
+    e: { current: 0, max: 4.2, name: "Filipov Dupák [P]", desc: "Mocný zbojnícky dupák, ktorý zatrasie zemou a odhodí nepriateľov." },
+    r: { current: 0, max: 60.0, name: "Trojhlasný Vír [U]", desc: "Superschopnosť: Všetci traja sa roztočia do víru, odhodia všetkých nepriateľov a udelia masívne poškodenie!" },
   };
 
   // Story & Festival Keys State
@@ -91,11 +97,11 @@ export class GameEngine {
       id: 'jakub',
       name: 'Jakub',
       title: 'Zbojnícky Vodca',
-      role: 'Valaška & Melee (I / Q)',
+      role: 'Valaška & Melee [I]',
       color: '#3b82f6',
       accentColor: '#93c5fd',
-      x: 480,
-      y: 450,
+      x: 580,
+      y: 550,
       vx: 0,
       vy: 0,
       radius: 15,
@@ -118,11 +124,11 @@ export class GameEngine {
       id: 'simi',
       name: 'Šimi',
       title: 'Folklórny Mág',
-      role: 'Heligónka (O / W)',
+      role: 'Heligónka [O]',
       color: '#a855f7',
       accentColor: '#d8b4fe',
-      x: 440,
-      y: 480,
+      x: 540,
+      y: 580,
       vx: 0,
       vy: 0,
       radius: 14,
@@ -140,42 +146,37 @@ export class GameEngine {
       stats: { attackPower: 20, magicPower: 90, defense: 15, critChance: 0.20 }
     };
 
-    // 3. Filip (Zbojnícky Dupák & Tank)
+    // 3. Filip (Zbojnícky silák - Dupák)
     this.filip = {
       id: 'filip',
       name: 'Filip',
-      title: 'Tanečný Obr',
-      role: 'Zbojnícky Dupák (P / E)',
-      color: '#eab308',
-      accentColor: '#fde047',
-      x: 440,
-      y: 420,
+      title: 'Zbojnícky Silák',
+      role: 'Dupák & Tank [P]',
+      color: '#f59e0b',
+      accentColor: '#fde68a',
+      x: 620,
+      y: 580,
       vx: 0,
       vy: 0,
-      radius: 17,
+      radius: 16,
       hp: 500,
       maxHp: 500,
-      energy: 100,
-      maxEnergy: 100,
-      speed: 210,
+      energy: 120,
+      maxEnergy: 120,
+      speed: 200,
       angle: 0,
       facing: 'right',
       attackCooldown: 0,
       state: 'idle',
       stateTimer: 0,
       level: 1,
-      stats: { attackPower: 55, magicPower: 15, defense: 42, critChance: 0.12 }
+      stats: { attackPower: 75, magicPower: 15, defense: 35, critChance: 0.15 }
     };
 
     this.heroes = [this.jakub, this.simi, this.filip];
 
     this.initEventListeners();
     this.spawnInitialZoneMonsters();
-
-    // Trigger Chapter 1 Opening Dialogue with Samko Szabó
-    setTimeout(() => {
-      this.triggerChapterDialogue(0);
-    }, 400);
   }
 
   private initEventListeners() {
@@ -237,7 +238,22 @@ export class GameEngine {
     this.triggerChapterDialogue(0);
   }
 
-  private cheatBuffer: string = '';
+  public setChosenHero(heroId: HeroId) {
+    this.chosenHero = heroId;
+    if (heroId === 'jakub') {
+      this.jakub.stats.attackPower = 110;
+      this.jakub.stats.critChance = 0.35;
+      this.cooldowns.q.max = 1.5;
+    } else if (heroId === 'simi') {
+      this.simi.stats.magicPower = 140;
+      this.cooldowns.w.max = 2.0;
+    } else if (heroId === 'filip') {
+      this.filip.maxHp = 650;
+      this.filip.hp = 650;
+      this.filip.stats.attackPower = 90;
+      this.cooldowns.e.max = 3.2;
+    }
+  }
 
   private handleKeyDown = (e: KeyboardEvent) => {
     const key = e.key.toLowerCase();
@@ -260,17 +276,21 @@ export class GameEngine {
 
     if (this.isDialogueActive || this.isPaused || this.isDefeated || this.gameWon) return;
 
-    // Ability I (or Q): Jakub - Sek valaškou
-    if (key === 'i' || key === 'q') {
+    // Ability I: Jakub - Sek valaškou
+    if (key === 'i') {
       this.castJakubSlash();
     }
-    // Ability O (or W): Šimi - Magický tón z heligónky
-    else if (key === 'o' || key === 'w') {
+    // Ability O: Šimi - Magický tón z heligónky
+    else if (key === 'o') {
       this.castSimiMagic();
     }
-    // Ability P (or E): Filip - Zbojnícky dupák
-    else if (key === 'p' || key === 'e') {
+    // Ability P: Filip - Zbojnícky dupák
+    else if (key === 'p') {
       this.castFilipSlam();
+    }
+    // Superschopnosť U: Trojhlasný Vír (Všetci sa roztočia a odhodia nepriateľov)
+    else if (key === 'u') {
+      this.castUltimateWhirlwind();
     }
   };
 
@@ -516,6 +536,110 @@ export class GameEngine {
     });
   }
 
+  // 'K' / 'R' / [SPACE]: Trojhlasný Zbojnícky Vír (Ultimate schopnosť - 60s cooldown)
+  public castUltimateWhirlwind() {
+    if (this.cooldowns.r.current > 0 || (this.jakub.hp <= 0 && this.simi.hp <= 0 && this.filip.hp <= 0)) return;
+
+    this.cooldowns.r.current = this.cooldowns.r.max;
+    
+    // Zvukový efekt a silný otras kamery
+    sound.playBossRoar();
+    sound.playLevelUp();
+    this.addCameraShake(18);
+
+    // Nastaviť hrdinov do útočného roztočeného stavu
+    this.jakub.state = 'attacking';
+    this.jakub.stateTimer = 1.0;
+    this.simi.state = 'casting';
+    this.simi.stateTimer = 1.0;
+    this.filip.state = 'charging';
+    this.filip.stateTimer = 1.0;
+
+    // Masívny vizuálny zlatý a ohnivý kruhový vír okolo celej družiny
+    const centerX = this.jakub.x;
+    const centerY = this.jakub.y;
+    const ultimateRadius = 260;
+
+    // Vizuálny shockwave vír
+    this.slams.push({
+      id: Math.random().toString(),
+      x: centerX,
+      y: centerY,
+      radius: 30,
+      maxRadius: ultimateRadius,
+      color: '#f59e0b',
+      life: 0.8,
+      maxLife: 0.8,
+    });
+
+    // 4 sekvencie vírivých sĺz/sekov
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2;
+      this.slashes.push({
+        id: Math.random().toString(),
+        x: centerX + Math.cos(angle) * 70,
+        y: centerY + Math.sin(angle) * 70,
+        angle: angle + Math.PI / 2,
+        radius: 120,
+        color: i % 2 === 0 ? '#60a5fa' : '#c084fc',
+        life: 0.5,
+        maxLife: 0.5,
+        arc: Math.PI * 1.5,
+      });
+    }
+
+    // Explózia stovky magických partiklov
+    for (let i = 0; i < 50; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const spd = 180 + Math.random() * 260;
+      this.particles.push({
+        x: centerX,
+        y: centerY,
+        vx: Math.cos(a) * spd,
+        vy: Math.sin(a) * spd,
+        size: 5 + Math.random() * 6,
+        color: i % 3 === 0 ? '#fbbf24' : (i % 3 === 1 ? '#60a5fa' : '#e879f9'),
+        alpha: 1,
+        life: 0.6,
+        maxLife: 0.6,
+        shape: i % 4 === 0 ? 'music_note' : 'spark',
+      });
+    }
+
+    // Textové upozornenie na obrazovke
+    this.floatingTexts.push({
+      id: Math.random().toString(),
+      x: centerX,
+      y: centerY - 65,
+      text: '💥 TROJHLASNÝ VÍR! 💥',
+      color: '#fbbf24',
+      alpha: 1,
+      life: 2.0,
+      isCrit: true,
+    });
+
+    // Masívne poškodenie a obrovský odhod (knockback) pre všetkých nepriateľov naokolo
+    const ultimateDamage = 320;
+    const extremeKnockback = 650;
+
+    this.enemies.forEach(enemy => {
+      const dx = enemy.x - centerX;
+      const dy = enemy.y - centerY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < ultimateRadius + enemy.radius) {
+        const angle = Math.atan2(dy, dx);
+        this.damageEnemy(
+          enemy,
+          ultimateDamage,
+          true,
+          Math.cos(angle) * extremeKnockback,
+          Math.sin(angle) * extremeKnockback
+        );
+      }
+    });
+  }
+
   // --- MONSTER SPAWN & ZONE PROGRESSION ---
 
   private spawnInitialZoneMonsters() {
@@ -562,31 +686,31 @@ export class GameEngine {
       color = '#22c55e';
       xpValue = 65;
     } else if (type === 'detva_boss') {
-      name = 'Detviansky Zbojnícky Bača';
-      hp = maxHp = 1200;
-      speed = 90;
-      damage = 40;
-      radius = 28;
-      color = '#dc2626';
-      xpValue = 300;
-      isBoss = true;
-    } else if (type === 'myjava_boss') {
-      name = 'Myjavský Zbojnícky Kapitán';
-      hp = maxHp = 1600;
-      speed = 100;
+      name = 'Detviansky Zbojnícky Bača (Boss)';
+      hp = maxHp = 2400; // Vyžaduje upgrady
+      speed = 95;
       damage = 48;
       radius = 30;
-      color = '#b45309';
-      xpValue = 400;
+      color = '#dc2626';
+      xpValue = 500;
       isBoss = true;
     } else if (type === 'terchova_boss') {
-      name = 'Terchovský Jánošíkov Tieň';
-      hp = maxHp = 2200;
-      speed = 105;
-      damage = 55;
+      name = 'Terchovský Jánošíkov Tieň (Boss)';
+      hp = maxHp = 4200; // Veľmi odolný, potrebuje relikvie z Detvy & krčmy
+      speed = 110;
+      damage = 65;
       radius = 34;
       color = '#7e22ce';
-      xpValue = 600;
+      xpValue = 850;
+      isBoss = true;
+    } else if (type === 'myjava_boss') {
+      name = 'Myjavský Zbojnícky Kapitán (Grand Boss)';
+      hp = maxHp = 6200; // Extrémne silný boss pred hradom
+      speed = 115;
+      damage = 80;
+      radius = 36;
+      color = '#b45309';
+      xpValue = 1200;
       isBoss = true;
     }
 
@@ -740,23 +864,23 @@ export class GameEngine {
     let spawnY = this.jakub.y - 180;
 
     if (bossType === 'detva_boss') {
-      spawnX = 480;
-      spawnY = 1350;
+      spawnX = 580;
+      spawnY = 1850;
       // Minions
-      this.spawnEnemy('zbojnik_novacik', 420, 1370);
-      this.spawnEnemy('zbojnik_novacik', 540, 1370);
+      this.spawnEnemy('zbojnik_novacik', 520, 1880);
+      this.spawnEnemy('zbojnik_novacik', 640, 1880);
     } else if (bossType === 'terchova_boss') {
-      spawnX = 2200;
-      spawnY = 1400;
+      spawnX = 2850;
+      spawnY = 1850;
       // Minions
-      this.spawnEnemy('lesny_lupeznik', 2130, 1420);
-      this.spawnEnemy('lesny_lupeznik', 2270, 1420);
+      this.spawnEnemy('lesny_lupeznik', 2780, 1880);
+      this.spawnEnemy('lesny_lupeznik', 2920, 1880);
     } else if (bossType === 'myjava_boss') {
-      spawnX = 1500;
-      spawnY = 550;
+      spawnX = 1950;
+      spawnY = 780;
       // Minions
-      this.spawnEnemy('horsky_zbojnik', 1440, 570);
-      this.spawnEnemy('horsky_zbojnik', 1560, 570);
+      this.spawnEnemy('horsky_zbojnik', 1890, 800);
+      this.spawnEnemy('horsky_zbojnik', 2010, 800);
     }
 
     this.spawnEnemy(bossType, spawnX, spawnY);
@@ -970,6 +1094,7 @@ export class GameEngine {
     if (this.cooldowns.q.current > 0) this.cooldowns.q.current = Math.max(0, this.cooldowns.q.current - dt);
     if (this.cooldowns.w.current > 0) this.cooldowns.w.current = Math.max(0, this.cooldowns.w.current - dt);
     if (this.cooldowns.e.current > 0) this.cooldowns.e.current = Math.max(0, this.cooldowns.e.current - dt);
+    if (this.cooldowns.r.current > 0) this.cooldowns.r.current = Math.max(0, this.cooldowns.r.current - dt);
 
     // Passive regeneration from Tatranská Slivovica relic
     if (this.activeRelics.some(r => r.id === 'tatranska_slivovica')) {
@@ -978,6 +1103,17 @@ export class GameEngine {
           h.hp = Math.min(h.maxHp, h.hp + 3 * dt);
         }
       });
+    }
+
+    // Dynamická hudba: ak je na blízku boss alebo je aktivovaný totem / boj, prepnúť na intenzívny mód
+    if (this.animFrameCounter % 30 === 0) {
+      const isBossAlive = this.enemies.some(e => e.isBoss && e.hp > 0);
+      const isTotemActive = STORY_CHAPTERS[this.currentChapterIndex]?.totemActivated && !STORY_CHAPTERS[this.currentChapterIndex]?.bossDefeated;
+      if (isBossAlive || isTotemActive) {
+        sound.setMusicMode('boss');
+      } else {
+        sound.setMusicMode('explore');
+      }
     }
 
     // 1. Update Player Jakub (Leader)
@@ -1453,22 +1589,45 @@ export class GameEngine {
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < w.radius + this.jakub.radius) {
-        // Start Chalúpka: Heal Shrine
+        // Start Chalúpka: Náš Rodný Dom (Heal Shrine)
         if (w.id === 'start_chalupka') {
           const needsHeal = this.heroes.some(h => h.hp < h.maxHp);
-          if (needsHeal && this.totemInteractCooldown <= 0) {
-            this.totemInteractCooldown = 3.0;
-            sound.playLevelUp();
+          if (needsHeal) {
             this.heroes.forEach(h => h.hp = h.maxHp);
+          }
+          if (this.totemInteractCooldown <= 0) {
+            this.totemInteractCooldown = 2.5;
+            sound.playLevelUp();
             this.floatingTexts.push({
               id: Math.random().toString(),
               x: w.x,
-              y: w.y - 30,
-              text: 'CHALÚPKA: PLNÉ ZDRAVIE OBNOVENÉ! 🍶',
+              y: w.y - 45,
+              text: '🏡 RODNÝ DOM: PLNÉ ZDRAVIE OBNOVENÉ! 🍶',
               color: '#38bdf8',
               alpha: 1,
-              life: 1.6,
+              life: 1.8,
             });
+          }
+          return;
+        }
+
+        // Zbojnícka Krčma (Páka & Odzemok)
+        if (w.id === 'waystone_tavern') {
+          if (this.totemInteractCooldown <= 0) {
+            this.totemInteractCooldown = 1.5;
+            sound.playLevelUp();
+            this.floatingTexts.push({
+              id: Math.random().toString(),
+              x: w.x,
+              y: w.y - 45,
+              text: '🍻 VSTUP DO KRČMY!',
+              color: '#fbbf24',
+              alpha: 1,
+              life: 1.8,
+            });
+            if (this.callbacks.onOpenTavern) {
+              this.callbacks.onOpenTavern();
+            }
           }
           return;
         }
@@ -1779,20 +1938,20 @@ export class GameEngine {
   }
 
   public isZoneDiscovered(x: number, y: number): boolean {
-    // Castle area: y < 280
-    if (y < 280) {
+    // Castle area: y < 380
+    if (y < 380) {
       return this.keysCollected >= 3;
     }
-    // East side of the river: x >= 990
-    if (x >= 990) {
-      // Myjava area: y < 1040
-      if (y < 1040) {
+    // East side of the river: x >= 1350
+    if (x >= 1350) {
+      // Myjava area: y < 1450
+      if (y < 1450) {
         return this.keysCollected >= 2;
       }
-      // Terchová area: y >= 1040
+      // Terchová area: y >= 1450
       return this.keysCollected >= 1;
     }
-    // West side (Detva & Chalúpka) is always discovered from start
+    // West side (Detva, Chalúpka, Tavern) is always discovered from start
     return true;
   }
 
@@ -1801,17 +1960,17 @@ export class GameEngine {
 
     // 1. Severný Hrad (Zone 4) - Locked if keysCollected < 3
     if (this.keysCollected < 3) {
-      this.drawDarkFogZone(ctx, 0, 0, MAP_WIDTH, 280, '🔒 SEVERNÝ HRAD (Zamknutá oblasť)');
+      this.drawDarkFogZone(ctx, 0, 0, MAP_WIDTH, 380, '🔒 SEVERNÝ HRAD (Vyžaduje 3 Kľúče)');
     }
 
     // 2. Myjavské Kopanice (Zone 3) - Locked if keysCollected < 2
     if (this.keysCollected < 2) {
-      this.drawDarkFogZone(ctx, 990, 280, MAP_WIDTH - 990, 760, '🔒 FESTIVAL MYJAVA (Zamknutá oblasť)');
+      this.drawDarkFogZone(ctx, 1350, 380, MAP_WIDTH - 1350, 1070, '🔒 FESTIVAL MYJAVA (Vyžaduje 2 Kľúče)');
     }
 
     // 3. Terchová (Zone 2) - Locked if keysCollected < 1
     if (this.keysCollected < 1) {
-      this.drawDarkFogZone(ctx, 990, 1040, MAP_WIDTH - 990, MAP_HEIGHT - 1040, '🔒 FESTIVAL TERCHOVÁ (Zamknutá oblasť)');
+      this.drawDarkFogZone(ctx, 1350, 1450, MAP_WIDTH - 1350, MAP_HEIGHT - 1450, '🔒 FESTIVAL TERCHOVÁ (Vyžaduje 1 Kľúč)');
     }
 
     ctx.restore();

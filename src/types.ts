@@ -171,6 +171,7 @@ export interface SkillCooldown {
   q: { current: number; max: number; name: string; desc: string };
   w: { current: number; max: number; name: string; desc: string };
   e: { current: number; max: number; name: string; desc: string };
+  r: { current: number; max: number; name: string; desc: string };
 }
 
 export interface RelicItem {
@@ -188,13 +189,32 @@ export interface RelicItem {
   };
 }
 
+export interface CollectibleItem {
+  id: string;
+  name: string;
+  category: 'trophy' | 'instrument' | 'garment' | 'relic';
+  icon: string;
+  description: string;
+  unlocked: boolean;
+  unlockedAt?: string;
+  bonusText?: string;
+}
+
+export interface TavernActivity {
+  id: 'arm_wrestling' | 'dance_rhythm';
+  title: string;
+  description: string;
+  rewardDukaty: number;
+  rewardBuff: string;
+}
+
 export interface MapObstacle {
   id?: string;
   x: number;
   y: number;
   width: number;
   height: number;
-  type: 'tree' | 'chalupka' | 'castle_wall' | 'castle_gate' | 'festival_stage' | 'haystack' | 'fence' | 'water' | 'fire' | 'barricade' | 'totem';
+  type: 'tree' | 'chalupka' | 'castle_wall' | 'castle_gate' | 'festival_stage' | 'haystack' | 'fence' | 'water' | 'fire' | 'barricade' | 'totem' | 'tavern' | 'home_door' | 'bench' | 'booth' | 'crowd';
   lockedByChapter?: number;
   unlocked?: boolean;
   label?: string;

@@ -3,9 +3,19 @@
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
-  private musicNode: OscillatorNode | null = null;
-  private musicGain: GainNode | null = null;
+  private musicMasterGain: GainNode | null = null;
+  private musicIntervalId: any = null;
+  private musicMode: 'explore' | 'boss' = 'explore';
+  private currentStep: number = 0;
   private isMusicPlaying: boolean = false;
+
+  // Frekvencie pre mysterióznu slovenskú folklórnu molovú tóninu (A mol / D mol modal)
+  private readonly NOTE_FREQS: Record<string, number> = {
+    'A2': 110.00, 'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'G3': 196.00,
+    'A3': 220.00, 'B3': 246.94, 'C4': 261.63, 'D4': 293.66, 'E4': 329.63,
+    'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'B4': 493.88, 'C5': 523.25,
+    'D5': 587.33, 'E5': 659.25, 'F5': 698.46, 'G5': 783.99, 'A5': 880.00
+  };
 
   private initCtx() {
     if (!this.ctx) {
@@ -21,6 +31,10 @@ class SoundEngine {
           'jakub_zasah', 'filip_dostali_ma', 'simon_podme_na_nich',
           'jakub_sme_tu'
         ].forEach(name => this.loadAudioBuffer(`${base}/sounds/${name}.wav`));
+
+        this.musicMasterGain = this.ctx.createGain();
+        this.musicMasterGain.gain.setValueAtTime(0.22, this.ctx.currentTime);
+        this.musicMasterGain.connect(this.ctx.destination);
       }
     }
     if (this.ctx && this.ctx.state === 'suspended') {
@@ -30,13 +44,198 @@ class SoundEngine {
 
   public setMuted(muted: boolean) {
     this.isMuted = muted;
-    if (muted && this.musicGain && this.ctx) {
-      this.musicGain.gain.setValueAtTime(0, this.ctx.currentTime);
+    if (this.musicMasterGain && this.ctx) {
+      this.musicMasterGain.gain.setValueAtTime(muted ? 0 : 0.22, this.ctx.currentTime);
     }
   }
 
   public getMuted() {
     return this.isMuted;
+  }
+
+  // Spustenie / prepnutie dynamickej hudby (explore = mysteriózny les, boss = intenzívny boj)
+  public startDynamicMusic(mode: 'explore' | 'boss' = 'explore') {
+    this.initCtx();
+    this.musicMode = mode;
+    if (this.isMusicPlaying) return;
+    this.isMusicPlaying = true;
+
+    const tempoMs = 190; // 125 BPM 16th notes
+    this.musicIntervalId = setInterval(() => {
+      this.tickMusic();
+    }, tempoMs);
+  }
+
+  public setMusicMode(mode: 'explore' | 'boss') {
+    this.musicMode = mode;
+  }
+
+  public stopMusic() {
+    if (this.musicIntervalId) {
+      clearInterval(this.musicIntervalId);
+      this.musicIntervalId = null;
+    }
+    this.isMusicPlaying = false;
+  }
+
+  private tickMusic() {
+    if (this.isMuted || !this.ctx || this.ctx.state === 'suspended') return;
+    const now = this.ctx.currentTime;
+    const step = this.currentStep % 32;
+    this.currentStep++;
+
+    // 1. BASOVÁ LINKA (Basa / Dvojhmat)
+    if (step % (this.musicMode === 'boss' ? 2 : 4) === 0) {
+      const bassNotes = this.musicMode === 'explore'
+        ? ['A2', 'A2', 'D3', 'E3', 'A2', 'C3', 'D3', 'E3']
+        : ['A2', 'E2', 'F2', 'E2', 'D3', 'C3', 'B2', 'E2', 'A2', 'G2', 'F2', 'E2', 'D3', 'E3', 'F3', 'E3'];
+      const noteName = bassNotes[Math.floor(step / (this.musicMode === 'boss' ? 2 : 4)) % bassNotes.length];
+      this.synthesizeNote(this.NOTE_FREQS[noteName] || 110, now, this.musicMode === 'boss' ? 0.22 : 0.4, 'sawtooth', this.musicMode === 'boss' ? 0.35 : 0.25, this.musicMode === 'boss' ? 900 : 450);
+    }
+
+    // 2. MYSTERIÓZNA FUJARA / MELÓDIA (Explore = tajomná lesná melódia, Boss = rýchly epický bojový čardáš)
+    if (this.musicMode === 'explore') {
+      // Lesný mysteriózny nápev (ľahké vibrato fujary)
+      const flutePattern: Record<number, string> = {
+        0: 'E4', 3: 'A4', 6: 'B4', 8: 'C5', 12: 'B4', 16: 'A4', 19: 'G4', 22: 'E4', 24: 'A4', 28: 'B4'
+      };
+      if (flutePattern[step]) {
+        this.synthesizeFluteNote(this.NOTE_FREQS[flutePattern[step]], now, 0.55, 0.18);
+      }
+
+      // Ambientné lesné šumenie / chimes
+      if (step === 14 || step === 30) {
+        this.synthesizeChime(this.NOTE_FREQS['E5'], now);
+      }
+    } else {
+      // INTENZÍVNY BOJ PRI TOTEME / BOSSOVI (Epický zbojnícky metal/čardáš synth s dvojitými bubnami)
+      const battlePattern: Record<number, string> = {
+        0: 'A4', 1: 'C5', 2: 'E5', 3: 'A5', 4: 'G5', 5: 'E5', 6: 'D5', 7: 'F5',
+        8: 'E5', 9: 'D5', 10: 'C5', 11: 'B4', 12: 'A4', 13: 'C5', 14: 'E5', 15: 'G5',
+        16: 'A5', 17: 'B5', 18: 'C5', 19: 'B4', 20: 'A4', 21: 'G4', 22: 'F4', 23: 'E4',
+        24: 'D4', 25: 'F4', 26: 'A4', 27: 'D5', 28: 'E5', 29: 'D5', 30: 'C5', 31: 'B4'
+      };
+      if (battlePattern[step]) {
+        this.synthesizeNote(this.NOTE_FREQS[battlePattern[step]], now, 0.14, 'square', 0.22, 3500);
+      }
+
+      // Tvrdé bojové bicie (Heavy Double Kick & Snare Roll)
+      if (step % 2 === 0) {
+        this.synthesizeDrum(now, 160, 40, 0.45); // Heavy Kick
+      } else {
+        this.synthesizeSnare(now); // Aggressive Snare
+      }
+      // Hi-hat cinknutie na každom kroku
+      this.synthesizeChime(this.NOTE_FREQS['A5'], now);
+    }
+  }
+
+  // Syntéza fujarového/dreveného dychového zvuku
+  private synthesizeFluteNote(freq: number, startTime: number, duration: number, vol: number) {
+    if (!this.ctx || !this.musicMasterGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, startTime);
+    // Jemné vibrato
+    osc.frequency.linearRampToValueAtTime(freq + 4, startTime + duration * 0.5);
+    osc.frequency.linearRampToValueAtTime(freq - 2, startTime + duration);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(1400, startTime);
+
+    gain.gain.setValueAtTime(0.001, startTime);
+    gain.gain.linearRampToValueAtTime(vol, startTime + 0.08);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.musicMasterGain);
+
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.05);
+  }
+
+  private synthesizeNote(freq: number, startTime: number, duration: number, type: OscillatorType, vol: number, filterFreq: number) {
+    if (!this.ctx || !this.musicMasterGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, startTime);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(filterFreq, startTime);
+
+    gain.gain.setValueAtTime(vol, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.musicMasterGain);
+
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.05);
+  }
+
+  private synthesizeChime(freq: number, startTime: number) {
+    if (!this.ctx || !this.musicMasterGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, startTime);
+    gain.gain.setValueAtTime(0.08, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.7);
+
+    osc.connect(gain);
+    gain.connect(this.musicMasterGain);
+    osc.start(startTime);
+    osc.stop(startTime + 0.7);
+  }
+
+  private synthesizeDrum(startTime: number, startFreq: number, endFreq: number, vol: number) {
+    if (!this.ctx || !this.musicMasterGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(startFreq, startTime);
+    osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + 0.12);
+
+    gain.gain.setValueAtTime(vol, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
+
+    osc.connect(gain);
+    gain.connect(this.musicMasterGain);
+    osc.start(startTime);
+    osc.stop(startTime + 0.16);
+  }
+
+  private synthesizeSnare(startTime: number) {
+    if (!this.ctx || !this.musicMasterGain) return;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const filter = this.ctx.createBiquadFilter();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(260, startTime);
+    osc.frequency.exponentialRampToValueAtTime(60, startTime + 0.08);
+
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(300, startTime);
+
+    gain.gain.setValueAtTime(0.18, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.09);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.musicMasterGain);
+    osc.start(startTime);
+    osc.stop(startTime + 0.1);
   }
 
   // Jakub's Melee Slash 'Q'

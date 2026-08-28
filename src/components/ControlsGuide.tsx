@@ -53,7 +53,7 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({ onClose }) => {
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold text-[#fbbf24] text-xs font-serif">Jakub</span>
                 <span className="text-[9px] bg-blue-900/80 text-blue-200 px-1.5 py-0.5 rounded font-mono font-bold">
-                  Kláves [I / Q]
+                  Kláves [I]
                 </span>
               </div>
               <div className="text-[10px] text-blue-300 font-bold mb-1">Sek Zbojníckou Valaškou</div>
@@ -69,7 +69,7 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({ onClose }) => {
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold text-[#c084fc] text-xs font-serif">Šimi</span>
                 <span className="text-[9px] bg-purple-900/80 text-purple-200 px-1.5 py-0.5 rounded font-mono font-bold">
-                  Kláves [O / W]
+                  Kláves [O]
                 </span>
               </div>
               <div className="text-[10px] text-purple-300 font-bold mb-1">Tón z Heligónky</div>
@@ -85,7 +85,7 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({ onClose }) => {
               <div className="flex items-center justify-between mb-1">
                 <span className="font-bold text-[#fbbf24] text-xs font-serif">Filip</span>
                 <span className="text-[9px] bg-amber-900/80 text-amber-200 px-1.5 py-0.5 rounded font-mono font-bold">
-                  Kláves [P / E]
+                  Kláves [P]
                 </span>
               </div>
               <div className="text-[10px] text-amber-300 font-bold mb-1">Zbojnícky Dupák</div>
@@ -104,7 +104,11 @@ export const ControlsGuide: React.FC<ControlsGuideProps> = ({ onClose }) => {
           </div>
           <div className="flex justify-between">
             <span className="text-[#fbbf24] font-bold">Útoky & Zručnosti:</span>
-            <span>Klávesy [I, O, P] (alebo Q, W, E) / Tlačidlá na mobile vpravo</span>
+            <span>Jakub = [I], Šimi = [O], Filip = [P]</span>
+          </div>
+          <div className="flex justify-between text-amber-300">
+            <span className="font-bold text-amber-400">💥 Trojhlasný Vír (Superschopnosť):</span>
+            <span>Kláves [U] (60s cooldown - obrovský vír & odhod)</span>
           </div>
           <div className="flex justify-between">
             <span className="text-[#fbbf24] font-bold">Družina:</span>
