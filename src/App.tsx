@@ -150,6 +150,13 @@ export default function App() {
     });
 
     engineRef.current = engine;
+    setHeroes([...engine.heroes]);
+    setCooldowns({
+      q: { ...engine.cooldowns.q },
+      w: { ...engine.cooldowns.w },
+      e: { ...engine.cooldowns.e },
+      r: { ...engine.cooldowns.r },
+    });
     // Hra je pozastavená, kým si hráč neprehrá prológ a nevyberie postavu
     engine.setPaused(true);
     engine.start();

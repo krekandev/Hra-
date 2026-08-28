@@ -77,7 +77,7 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  });
+  }, [isTyping, currentIndex, currentLine, lines]);
 
   if (!currentLine) return null;
 

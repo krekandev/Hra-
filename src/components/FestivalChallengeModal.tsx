@@ -323,7 +323,7 @@ export const FestivalChallengeModal: React.FC<FestivalChallengeModalProps> = ({
             {/* Big Character Portrait */}
             <div className="relative w-32 h-32 rounded-3xl overflow-hidden border-2 border-amber-400/90 shadow-[0_0_20px_rgba(251,191,36,0.4)] my-1 bg-stone-900">
               <img
-                src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/${(challenge.portraitUrl || 'emi_sobi.jpg').replace(/^\//, '')}`}
+                src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/${(challenge.portraitUrl || 'emi_sobi.webp').replace(/^\//, '')}`}
                 alt="Emi Sobi"
                 className="w-full h-full object-cover"
               />
@@ -402,7 +402,7 @@ export const FestivalChallengeModal: React.FC<FestivalChallengeModalProps> = ({
             {/* Big Žofi Portrait */}
             <div className="relative w-28 h-28 rounded-3xl overflow-hidden border-2 border-amber-400/90 shadow-[0_0_20px_rgba(251,191,36,0.4)] my-1 bg-stone-900">
               <img
-                src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/${(challenge.portraitUrl || 'zofi.jpg').replace(/^\//, '')}`}
+                src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/${(challenge.portraitUrl || 'zofi.webp').replace(/^\//, '')}`}
                 alt="Žofi"
                 className="w-full h-full object-cover"
               />
@@ -470,7 +470,7 @@ export const FestivalChallengeModal: React.FC<FestivalChallengeModalProps> = ({
             {/* Big Mirnyx Sova Portrait */}
             <div className="relative w-28 h-28 rounded-3xl overflow-hidden border-2 border-amber-400/90 shadow-[0_0_20px_rgba(251,191,36,0.4)] my-1 bg-stone-900">
               <img
-                src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/${(challenge.portraitUrl || 'mirnyx_sova.jpg').replace(/^\//, '')}`}
+                src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/${(challenge.portraitUrl || 'mirnyx_sova.webp').replace(/^\//, '')}`}
                 alt="Mirnyx Sova"
                 className="w-full h-full object-cover"
               />
