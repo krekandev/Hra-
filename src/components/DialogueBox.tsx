@@ -144,7 +144,7 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({ lines, onComplete }) =
         {speakerPhoto ? (
           <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 border-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.3)] shrink-0 bg-stone-900">
             <img
-              src={speakerPhoto}
+              src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}${speakerPhoto}`}
               alt={currentLine.speaker}
               className="w-full h-full object-cover pixelated"
               style={{ imageRendering: 'pixelated' }}

@@ -46,7 +46,7 @@ export const ChampionBar: React.FC<ChampionBarProps> = ({
         {jakub && (
           <div id="hero-card-jakub" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f] p-1 sm:p-1.5 min-w-[125px] sm:min-w-[155px] shadow-md rounded-lg">
             <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[#fbbf24] bg-blue-950 shrink-0">
-              <img src="/jakub.png" alt="Jakub" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
+              <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/jakub.png`} alt="Jakub" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
@@ -71,7 +71,7 @@ export const ChampionBar: React.FC<ChampionBarProps> = ({
         {simi && (
           <div id="hero-card-simi" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f]/80 p-1 sm:p-1.5 min-w-[115px] sm:min-w-[140px] shadow-sm rounded-lg">
             <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[#c084fc] bg-purple-950 shrink-0">
-              <img src="/simi.png" alt="Šimi" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
+              <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/simi.png`} alt="Šimi" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
@@ -96,7 +96,7 @@ export const ChampionBar: React.FC<ChampionBarProps> = ({
         {filip && (
           <div id="hero-card-filip" className="flex items-center gap-2 bg-[#0c0a09] border border-[#78350f]/80 p-1 sm:p-1.5 min-w-[115px] sm:min-w-[140px] shadow-sm rounded-lg">
             <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-[#fbbf24] bg-amber-950 shrink-0">
-              <img src="/filip.png" alt="Filip" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
+              <img src={`${import.meta.env.BASE_URL.replace(/\/$/, '')}/filip.png`} alt="Filip" className="w-full h-full object-cover pixelated" style={{ imageRendering: 'pixelated' }} />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
