@@ -59,6 +59,9 @@ export default function App() {
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
+  // Radar / Minimap coordinates
+  const [cameraPos, setCameraPos] = useState<{ x: number; y: number }>({ x: 580, y: 550 });
+
   // Preload all portrait images in background into browser cache immediately
   useEffect(() => {
     const baseUrl = import.meta.env.BASE_URL.replace(/\/$/, '');
