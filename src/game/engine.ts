@@ -27,8 +27,8 @@ export class GameEngine {
 
   // World & Camera
   public world: GameWorld;
-  public cameraX: number = 480;
-  public cameraY: number = 450;
+  public cameraX: number = 580;
+  public cameraY: number = 550;
   public cameraShake: number = 0;
   private animFrameCounter: number = 0;
 
@@ -213,29 +213,31 @@ export class GameEngine {
 
     // Reset heroes
     this.jakub.hp = this.jakub.maxHp = 360;
-    this.jakub.x = 480;
-    this.jakub.y = 450;
+    this.jakub.x = 580;
+    this.jakub.y = 550;
     this.jakub.speed = 215;
     this.jakub.state = 'idle';
 
     this.simi.hp = this.simi.maxHp = 250;
-    this.simi.x = 440;
-    this.simi.y = 480;
+    this.simi.x = 540;
+    this.simi.y = 580;
     this.simi.speed = 220;
     this.simi.state = 'idle';
 
     this.filip.hp = this.filip.maxHp = 500;
-    this.filip.x = 440;
-    this.filip.y = 420;
+    this.filip.x = 620;
+    this.filip.y = 580;
     this.filip.speed = 210;
     this.filip.state = 'idle';
+
+    this.cameraX = 580;
+    this.cameraY = 550;
 
     this.cooldowns.q.current = 0;
     this.cooldowns.w.current = 0;
     this.cooldowns.e.current = 0;
 
     this.spawnInitialZoneMonsters();
-    this.triggerChapterDialogue(0);
   }
 
   public setChosenHero(heroId: HeroId) {
