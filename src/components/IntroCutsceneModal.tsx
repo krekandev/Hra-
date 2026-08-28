@@ -49,6 +49,9 @@ export const IntroCutsceneModal: React.FC<IntroCutsceneModalProps> = ({ onComple
   };
 
   const handleConfirmHero = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
     if (selectedHero) {
       onComplete(selectedHero);
     }

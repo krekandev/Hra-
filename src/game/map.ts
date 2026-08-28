@@ -370,6 +370,12 @@ export class GameWorld {
           ctx.fillRect(x + 2, y + 2, TILE_SIZE - 4, TILE_SIZE - 4);
           ctx.fillStyle = '#451a03';
           ctx.fillRect(x, y + TILE_SIZE - 2, TILE_SIZE, 2);
+        } else if (tile === 6) {
+          // Tavern Wooden Floor (Drevená dlážka v krčme)
+          ctx.fillStyle = '#5c3a21';
+          ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+          ctx.fillStyle = '#3d2514';
+          ctx.fillRect(x + 1, y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
         }
       }
     }
